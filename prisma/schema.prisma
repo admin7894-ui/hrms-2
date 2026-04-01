@@ -1,0 +1,1632 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id             String   @id @default(cuid()) @map("company_id")
+  companyName    String   @map("company_name")
+  primaryCurrency String  @map("primary_currency") @default("INR")
+  country        String
+  registrationNo String?  @map("registration_no")
+  activeFlag     Boolean  @default(true) @map("active_flag")
+  effectiveFrom  DateTime @default(now()) @map("effective_from")
+  effectiveTo    DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy      String   @default("SYSTEM") @map("created_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  locations          Location[]
+  businessGroups     BusinessGroup[]
+  businessTypes      BusinessType[]
+  legalEntities      LegalEntity[]
+  operatingUnits     OperatingUnit[]
+  invOrganizations   InvOrganization[]
+  hrOrganizations    HrOrganization[]
+  grades             Grade[]
+  jobs               Job[]
+  persons            Person[]
+  payrollPeriods     PayrollPeriod[]
+  assignmentStatuses AssignmentStatusType[]
+  elementTypes       ElementType[]
+  absenceTypes       AbsenceType[]
+  benefitPlans       BenefitPlan[]
+  securityRoles      SecurityRole[]
+  securityProfiles   SecurityProfile[]
+  auditLogs          AuditLog[]
+  notifications      Notification[]
+  competences        Competence[]
+  holidayCalendars   HolidayCalendar[]
+  workSchedules      WorkSchedule[]
+  requisitions       Requisition[]
+  applicants         Applicant[]
+  trainingPrograms   TrainingProgram[]
+
+  @@map("companies")
+}
+
+model LocationType {
+  id               String   @id @default(cuid()) @map("location_type_id")
+  locationTypeName String   @map("location_type_name")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  locations Location[]
+
+  @@map("location_types")
+}
+
+model Location {
+  id             String       @id @default(cuid()) @map("location_id")
+  companyId      String       @map("company_id")
+  locationTypeId String       @map("location_type_id")
+  locationName   String       @map("location_name")
+  address1       String?
+  city           String?
+  state          String?
+  country        String?
+  pincode        String?
+  activeFlag     Boolean      @default(true) @map("active_flag")
+  effectiveFrom  DateTime     @default(now()) @map("effective_from")
+  effectiveTo    DateTime     @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy      String       @default("SYSTEM") @map("created_by")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  company      Company      @relation(fields: [companyId], references: [id])
+  locationType LocationType @relation(fields: [locationTypeId], references: [id])
+
+  businessGroups   BusinessGroup[]
+  legalEntities    LegalEntity[]
+  operatingUnits   OperatingUnit[]
+  invOrganizations InvOrganization[]
+  hrOrganizations  HrOrganization[]
+  positions        Position[]
+  holidayCalendars HolidayCalendar[]
+
+  @@map("locations")
+}
+
+model BusinessGroup {
+  id            String   @id @default(cuid()) @map("bg_id")
+  companyId     String   @map("company_id")
+  bgLocationId  String   @map("bg_location_id")
+  bgName        String   @map("bg_name")
+  currencyCode  String   @default("INR") @map("currency_code")
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  company  Company  @relation(fields: [companyId], references: [id])
+  location Location @relation(fields: [bgLocationId], references: [id])
+
+  legalEntities    LegalEntity[]
+  operatingUnits   OperatingUnit[]
+  invOrganizations InvOrganization[]
+  hrOrganizations  HrOrganization[]
+  grades           Grade[]
+  gradeSteps       GradeStep[]
+  gradeLadders     GradeLadder[]
+  jobs             Job[]
+  positions        Position[]
+  persons          Person[]
+  payrollPeriods   PayrollPeriod[]
+  assignments      Assignment[]
+  elementTypes     ElementType[]
+  absenceTypes     AbsenceType[]
+  benefitPlans     BenefitPlan[]
+  competences      Competence[]
+  holidayCalendars HolidayCalendar[]
+  workSchedules    WorkSchedule[]
+  requisitions     Requisition[]
+  trainingPrograms TrainingProgram[]
+  costCenters      CostCenter[]
+
+  @@map("business_groups")
+}
+
+model BusinessType {
+  id               String   @id @default(cuid()) @map("business_type_id")
+  companyId        String   @map("company_id")
+  businessTypeName String   @map("business_type_name")
+  description      String?
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  legalEntities    LegalEntity[]
+  operatingUnits   OperatingUnit[]
+  invOrganizations InvOrganization[]
+  hrOrganizations  HrOrganization[]
+
+  @@map("business_types")
+}
+
+model LegalEntity {
+  id                String   @id @default(cuid()) @map("le_id")
+  companyId         String   @map("company_id")
+  locationId        String   @map("location_id")
+  bgId              String   @map("bg_id")
+  businessTypeId    String   @map("business_type_id")
+  leName            String   @map("le_name")
+  taxRegistrationNo String?  @map("tax_registration_no")
+  functionalCurrency String  @default("INR") @map("functional_currency")
+  activeFlag        Boolean  @default(true) @map("active_flag")
+  effectiveFrom     DateTime @default(now()) @map("effective_from")
+  effectiveTo       DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy         String   @default("SYSTEM") @map("created_by")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  company      Company      @relation(fields: [companyId], references: [id])
+  location     Location     @relation(fields: [locationId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  businessType BusinessType @relation(fields: [businessTypeId], references: [id])
+
+  operatingUnits   OperatingUnit[]
+  invOrganizations InvOrganization[]
+  hrOrganizations  HrOrganization[]
+
+  @@map("legal_entities")
+}
+
+model OperatingUnit {
+  id             String   @id @default(cuid()) @map("ou_id")
+  companyId      String   @map("company_id")
+  bgId           String   @map("bg_id")
+  leId           String   @map("le_id")
+  businessTypeId String   @map("business_type_id")
+  ouName         String   @map("ou_name")
+  ouShortCode    String?  @map("ou_short_code")
+  locationId     String   @map("location_id")
+  currencyCode   String   @default("INR") @map("currency_code")
+  activeFlag     Boolean  @default(true) @map("active_flag")
+  effectiveFrom  DateTime @default(now()) @map("effective_from")
+  effectiveTo    DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy      String   @default("SYSTEM") @map("created_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  legalEntity   LegalEntity   @relation(fields: [leId], references: [id])
+  businessType  BusinessType  @relation(fields: [businessTypeId], references: [id])
+  location      Location      @relation(fields: [locationId], references: [id])
+
+  @@map("operating_units")
+}
+
+model InvOrganization {
+  id             String   @id @default(cuid()) @map("inv_org_id")
+  companyId      String   @map("company_id")
+  bgId           String   @map("bg_id")
+  leId           String   @map("le_id")
+  businessTypeId String   @map("business_type_id")
+  invOrgName     String   @map("inv_org_name")
+  invOrgCode     String   @map("inv_org_code")
+  locationId     String   @map("location_id")
+  orgType        String?  @map("org_type")
+  activeFlag     Boolean  @default(true) @map("active_flag")
+  effectiveFrom  DateTime @default(now()) @map("effective_from")
+  effectiveTo    DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy      String   @default("SYSTEM") @map("created_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  legalEntity   LegalEntity   @relation(fields: [leId], references: [id])
+  businessType  BusinessType  @relation(fields: [businessTypeId], references: [id])
+  location      Location      @relation(fields: [locationId], references: [id])
+
+  @@map("inv_organizations")
+}
+
+model HrOrganization {
+  id             String   @id @default(cuid()) @map("org_id")
+  companyId      String   @map("company_id")
+  bgId           String   @map("bg_id")
+  leId           String   @map("le_id")
+  businessTypeId String   @map("business_type_id")
+  orgName        String   @map("org_name")
+  orgCode        String   @map("org_code")
+  locationId     String   @map("location_id")
+  orgType        String?  @map("org_type")
+  parentOrgId    String?  @map("parent_org_id")
+  activeFlag     Boolean  @default(true) @map("active_flag")
+  effectiveFrom  DateTime @default(now()) @map("effective_from")
+  effectiveTo    DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy      String   @default("SYSTEM") @map("created_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  legalEntity   LegalEntity   @relation(fields: [leId], references: [id])
+  businessType  BusinessType  @relation(fields: [businessTypeId], references: [id])
+  location      Location      @relation(fields: [locationId], references: [id])
+  parentOrg     HrOrganization?  @relation("OrgHierarchy", fields: [parentOrgId], references: [id])
+  childOrgs     HrOrganization[] @relation("OrgHierarchy")
+
+  positions   Position[]
+  assignments Assignment[]
+  elementLinks ElementLink[]
+  costCenters  CostCenter[]
+  requisitions Requisition[]
+
+  @@map("hr_organizations")
+}
+
+model Grade {
+  id            String   @id @default(cuid()) @map("grade_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  gradeCode     String   @map("grade_code")
+  gradeName     String   @map("grade_name")
+  minSalary     Decimal  @default(0) @map("min_salary")
+  maxSalary     Decimal  @default(0) @map("max_salary")
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+
+  gradeSteps    GradeStep[]
+  fromLadders   GradeLadder[] @relation("FromGrade")
+  toLadders     GradeLadder[] @relation("ToGrade")
+  positions     Position[]
+  assignments   Assignment[]
+  elementLinks  ElementLink[]
+  offerLetters  OfferLetter[]
+  hiredPersons  HiredPerson[]
+
+  @@map("grades")
+}
+
+model GradeStep {
+  id            String   @id @default(cuid()) @map("grade_step_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  gradeId       String   @map("grade_id")
+  stepNumber    Int      @map("step_number")
+  stepName      String   @map("step_name")
+  stepAmount    Decimal  @map("step_amount")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  grade         Grade         @relation(fields: [gradeId], references: [id])
+
+  @@map("grade_steps")
+}
+
+model GradeLadder {
+  id              String   @id @default(cuid()) @map("ladder_id")
+  companyId       String   @map("company_id")
+  bgId            String   @map("bg_id")
+  ladderName      String   @map("ladder_name")
+  fromGradeId     String   @map("from_grade_id")
+  toGradeId       String   @map("to_grade_id")
+  sequence        Int
+  minYearsInGrade Int      @default(0) @map("min_years_in_grade")
+  activeFlag      Boolean  @default(true) @map("active_flag")
+  effectiveFrom   DateTime @default(now()) @map("effective_from")
+  effectiveTo     DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String   @default("SYSTEM") @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  fromGrade     Grade         @relation("FromGrade", fields: [fromGradeId], references: [id])
+  toGrade       Grade         @relation("ToGrade", fields: [toGradeId], references: [id])
+
+  @@map("grade_ladders")
+}
+
+model Job {
+  id            String   @id @default(cuid()) @map("job_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  jobCode       String   @map("job_code")
+  jobName       String   @map("job_name")
+  jobFamily     String?  @map("job_family")
+  description   String?
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+
+  positions   Position[]
+  assignments Assignment[]
+
+  @@map("jobs")
+}
+
+model Position {
+  id            String   @id @default(cuid()) @map("position_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  jobId         String   @map("job_id")
+  orgId         String   @map("org_id")
+  gradeId       String   @map("grade_id")
+  locationId    String   @map("location_id")
+  positionName  String   @map("position_name")
+  headcount     Int      @default(1)
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  businessGroup BusinessGroup  @relation(fields: [bgId], references: [id])
+  job           Job            @relation(fields: [jobId], references: [id])
+  org           HrOrganization @relation(fields: [orgId], references: [id])
+  grade         Grade          @relation(fields: [gradeId], references: [id])
+  location      Location       @relation(fields: [locationId], references: [id])
+
+  assignments  Assignment[]
+  elementLinks ElementLink[]
+  requisitions Requisition[]
+  offerLetters OfferLetter[]
+  hiredPersons HiredPerson[]
+
+  @@map("positions")
+}
+
+model Person {
+  id                    String    @id @default(cuid()) @map("person_id")
+  companyId             String    @map("company_id")
+  bgId                  String    @map("bg_id")
+  personType            String    @default("EMP") @map("person_type")
+  firstName             String    @map("first_name")
+  middleName            String?   @map("middle_name")
+  lastName              String    @map("last_name")
+  dateOfBirth           DateTime? @map("date_of_birth")
+  gender                String?
+  nationality           String?
+  nationalId            String?   @map("national_id")
+  email                 String    @unique
+  hireDate              DateTime? @map("hire_date")
+  addressType           String?   @map("address_type")
+  addressLine1          String?   @map("address_line1")
+  city                  String?
+  state                 String?
+  country               String?
+  pincode               String?
+  phoneType             String?   @map("phone_type")
+  phoneNumber           String?   @map("phone_number")
+  phonePreference       String?   @map("phone_preference")
+  emergencyName         String?   @map("emergency_name")
+  emergencyRelationship String?   @map("emergency_relationship")
+  emergencyPhone        String?   @map("emergency_phone")
+  emergencyAddress      String?   @map("emergency_address")
+  emergencyPriority     Int?      @map("emergency_priority")
+  activeFlag            Boolean   @default(true) @map("active_flag")
+  effectiveFrom         DateTime  @default(now()) @map("effective_from")
+  effectiveTo           DateTime  @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy             String    @default("SYSTEM") @map("created_by")
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+
+  documents          PersonDocument[]
+  assignments        Assignment[]
+  absences           Absence[]
+  benefitEnrollments BenefitEnrollment[]
+  personCompetences  PersonCompetence[]
+  payments           Payment[]
+  payslips           Payslip[]
+  taxDeclarations    TaxDeclaration[]
+  loans              Loan[]
+  separations        Separation[]
+  trainingEnrollments TrainingEnrollment[]
+  appraisals         Appraisal[]
+  personHistory      PersonHistory[]
+  supervisors        Supervisor[]
+  supervisorOf       Supervisor[]         @relation("SupervisorPerson")
+  securityProfilePersons SecurityProfilePerson[]
+
+  @@map("persons")
+}
+
+model PersonDocument {
+  id                String    @id @default(cuid()) @map("document_id")
+  companyId         String    @map("company_id")
+  bgId              String    @map("bg_id")
+  personId          String    @map("person_id")
+  documentType      String    @map("document_type")
+  documentNumber    String?   @map("document_number")
+  issuingAuthority  String?   @map("issuing_authority")
+  issueDate         DateTime? @map("issue_date")
+  expiryDate        DateTime? @map("expiry_date")
+  verifiedFlag      Boolean   @default(false) @map("verified_flag")
+  qualificationType String?   @map("qualification_type")
+  degreeName        String?   @map("degree_name")
+  institution       String?
+  yearOfPassing     Int?      @map("year_of_passing")
+  gradePct          Decimal?  @map("grade_pct")
+  companyName       String?   @map("company_name")
+  designation       String?
+  fromDate          DateTime? @map("from_date")
+  toDate            DateTime? @map("to_date")
+  reasonForLeaving  String?   @map("reason_for_leaving")
+  activeFlag        Boolean   @default(true) @map("active_flag")
+  effectiveFrom     DateTime  @default(now()) @map("effective_from")
+  effectiveTo       DateTime  @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy         String    @default("SYSTEM") @map("created_by")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  person Person @relation(fields: [personId], references: [id])
+
+  @@map("person_documents")
+}
+
+model PayrollPeriod {
+  id               String   @id @default(cuid()) @map("pay_period_id")
+  companyId        String   @map("company_id")
+  bgId             String   @map("bg_id")
+  payrollName      String   @map("payroll_name")
+  payrollCode      String   @map("payroll_code")
+  periodName       String   @map("period_name")
+  startDate        DateTime @map("start_date")
+  endDate          DateTime @map("end_date")
+  status           String   @default("Open")
+  periodType       String   @default("Monthly") @map("period_type")
+  paymentMethod    String   @default("Bank Transfer") @map("payment_method")
+  currencyCode     String   @default("INR") @map("currency_code")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+
+  payrollRuns    PayrollRun[]
+  loanRepayments LoanRepayment[]
+  assignments    Assignment[]
+
+  @@map("payroll_periods")
+}
+
+model AssignmentStatusType {
+  id            String   @id @default(cuid()) @map("status_type_id")
+  companyId     String   @map("company_id")
+  statusCode    String   @map("status_code")
+  statusName    String   @map("status_name")
+  userStatus    String?  @map("user_status")
+  systemStatus  String?  @map("system_status")
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  company     Company      @relation(fields: [companyId], references: [id])
+  assignments Assignment[]
+
+  @@map("assignment_status_types")
+}
+
+model Assignment {
+  id                     String   @id @default(cuid()) @map("assignment_id")
+  companyId              String   @map("company_id")
+  bgId                   String   @map("bg_id")
+  personId               String   @map("person_id")
+  orgId                  String   @map("org_id")
+  positionId             String?  @map("position_id")
+  jobId                  String?  @map("job_id")
+  gradeId                String?  @map("grade_id")
+  payrollId              String?  @map("payroll_id")
+  assignmentStatusTypeId String   @map("assignment_status_type_id")
+  assignmentType         String   @default("PRIMARY") @map("assignment_type")
+  activeFlag             Boolean  @default(true) @map("active_flag")
+  effectiveFrom          DateTime @default(now()) @map("effective_from")
+  effectiveTo            DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy              String   @default("SYSTEM") @map("created_by")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  businessGroup        BusinessGroup        @relation(fields: [bgId], references: [id])
+  person               Person               @relation(fields: [personId], references: [id])
+  org                  HrOrganization       @relation(fields: [orgId], references: [id])
+  position             Position?            @relation(fields: [positionId], references: [id])
+  job                  Job?                 @relation(fields: [jobId], references: [id])
+  grade                Grade?               @relation(fields: [gradeId], references: [id])
+  payrollPeriod        PayrollPeriod?       @relation(fields: [payrollId], references: [id])
+  assignmentStatusType AssignmentStatusType @relation(fields: [assignmentStatusTypeId], references: [id])
+
+  supervisors    Supervisor[]
+  supervisedBy   Supervisor[] @relation("SupervisorAssignment")
+  elementEntries ElementEntry[]
+  salaries       Salary[]
+  runResults     RunResult[]
+  payBalances    PayBalance[]
+  payments       Payment[]
+  payslips       Payslip[]
+  taxDeclarations TaxDeclaration[]
+  loans          Loan[]
+  loanRepayments LoanRepayment[]
+  timecards      Timecard[]
+  appraisals     Appraisal[]
+  separations    Separation[]
+  finalSettlements FinalSettlement[]
+  benefitEnrollments BenefitEnrollment[]
+  personHistory  PersonHistory[]
+
+  @@map("assignments")
+}
+
+model Supervisor {
+  id                     String   @id @default(cuid()) @map("supervisor_id")
+  companyId              String   @map("company_id")
+  bgId                   String   @map("bg_id")
+  assignmentId           String   @map("assignment_id")
+  personId               String   @map("person_id")
+  supervisorPersonId     String   @map("supervisor_person_id")
+  supervisorAssignmentId String   @map("supervisor_assignment_id")
+  activeFlag             Boolean  @default(true) @map("active_flag")
+  effectiveFrom          DateTime @default(now()) @map("effective_from")
+  effectiveTo            DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy              String   @default("SYSTEM") @map("created_by")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  assignment           Assignment @relation(fields: [assignmentId], references: [id])
+  person               Person     @relation(fields: [personId], references: [id])
+  supervisorPerson     Person     @relation("SupervisorPerson", fields: [supervisorPersonId], references: [id])
+  supervisorAssignment Assignment @relation("SupervisorAssignment", fields: [supervisorAssignmentId], references: [id])
+
+  @@map("supervisors")
+}
+
+model ElementType {
+  id                  String   @id @default(cuid()) @map("element_type_id")
+  companyId           String   @map("company_id")
+  bgId                String   @map("bg_id")
+  elementCode         String   @map("element_code")
+  elementName         String   @map("element_name")
+  classification      String
+  processingPriority  Int      @default(10) @map("processing_priority")
+  recurringFlag       Boolean  @default(true) @map("recurring_flag")
+  activeFlag          Boolean  @default(true) @map("active_flag")
+  effectiveFrom       DateTime @default(now()) @map("effective_from")
+  effectiveTo         DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy           String   @default("SYSTEM") @map("created_by")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+
+  elementLinks   ElementLink[]
+  elementEntries ElementEntry[]
+  runResults     RunResult[]
+  payBalances    PayBalance[]
+
+  @@map("element_types")
+}
+
+model ElementLink {
+  id            String   @id @default(cuid()) @map("element_link_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  elementTypeId String   @map("element_type_id")
+  orgId         String?  @map("org_id")
+  gradeId       String?  @map("grade_id")
+  positionId    String?  @map("position_id")
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  elementType ElementType     @relation(fields: [elementTypeId], references: [id])
+  org         HrOrganization? @relation(fields: [orgId], references: [id])
+  grade       Grade?          @relation(fields: [gradeId], references: [id])
+  position    Position?       @relation(fields: [positionId], references: [id])
+
+  @@map("element_links")
+}
+
+model ElementEntry {
+  id            String   @id @default(cuid()) @map("entry_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  assignmentId  String   @map("assignment_id")
+  elementTypeId String   @map("element_type_id")
+  value         Decimal
+  currency      String   @default("INR")
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  assignment  Assignment  @relation(fields: [assignmentId], references: [id])
+  elementType ElementType @relation(fields: [elementTypeId], references: [id])
+
+  @@map("element_entries")
+}
+
+model Salary {
+  id              String   @id @default(cuid()) @map("salary_id")
+  companyId       String   @map("company_id")
+  bgId            String   @map("bg_id")
+  assignmentId    String   @map("assignment_id")
+  basicAmount     Decimal  @map("basic_amount")
+  annualGross     Decimal  @map("annual_gross")
+  currency        String   @default("INR")
+  approvalStatus  String   @default("Pending") @map("approval_status")
+  activeFlag      Boolean  @default(true) @map("active_flag")
+  effectiveFrom   DateTime @default(now()) @map("effective_from")
+  effectiveTo     DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String   @default("SYSTEM") @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+
+  @@map("salaries")
+}
+
+model PayrollRun {
+  id               String   @id @default(cuid()) @map("payroll_run_id")
+  companyId        String   @map("company_id")
+  bgId             String   @map("bg_id")
+  payPeriodId      String   @map("pay_period_id")
+  runDate          DateTime @map("run_date")
+  runStatus        String   @default("Pending") @map("run_status")
+  totalEmployees   Int      @default(0) @map("total_employees")
+  totalGross       Decimal  @default(0) @map("total_gross")
+  totalDeductions  Decimal  @default(0) @map("total_deductions")
+  totalNet         Decimal  @default(0) @map("total_net")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  payPeriod PayrollPeriod @relation(fields: [payPeriodId], references: [id])
+
+  runResults RunResult[]
+  payments   Payment[]
+  payslips   Payslip[]
+
+  @@map("payroll_runs")
+}
+
+model RunResult {
+  id            String   @id @default(cuid()) @map("run_result_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  payrollRunId  String   @map("payroll_run_id")
+  assignmentId  String   @map("assignment_id")
+  elementTypeId String   @map("element_type_id")
+  amount        Decimal
+  currency      String   @default("INR")
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  payrollRun  PayrollRun  @relation(fields: [payrollRunId], references: [id])
+  assignment  Assignment  @relation(fields: [assignmentId], references: [id])
+  elementType ElementType @relation(fields: [elementTypeId], references: [id])
+
+  @@map("run_results")
+}
+
+model AbsenceType {
+  id                  String   @id @default(cuid()) @map("absence_type_id")
+  companyId           String   @map("company_id")
+  bgId                String   @map("bg_id")
+  absenceCode         String   @map("absence_code")
+  absenceName         String   @map("absence_name")
+  entitlementPerYear  Int      @default(0) @map("entitlement_per_year")
+  carryForwardFlag    Boolean  @default(false) @map("carry_forward_flag")
+  maxCarryDays        Int      @default(0) @map("max_carry_days")
+  activeFlag          Boolean  @default(true) @map("active_flag")
+  effectiveFrom       DateTime @default(now()) @map("effective_from")
+  effectiveTo         DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy           String   @default("SYSTEM") @map("created_by")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  absences      Absence[]
+
+  @@map("absence_types")
+}
+
+model Absence {
+  id                  String   @id @default(cuid()) @map("absence_id")
+  companyId           String   @map("company_id")
+  bgId                String   @map("bg_id")
+  personId            String   @map("person_id")
+  absenceTypeId       String   @map("absence_type_id")
+  startDate           DateTime @map("start_date")
+  endDate             DateTime @map("end_date")
+  days                Int
+  status              String   @default("Pending")
+  approvedByPersonId  String?  @map("approved_by_person_id")
+  entitlement         Int      @default(0)
+  used                Int      @default(0)
+  balance             Int      @default(0)
+  activeFlag          Boolean  @default(true) @map("active_flag")
+  effectiveFrom       DateTime @default(now()) @map("effective_from")
+  effectiveTo         DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy           String   @default("SYSTEM") @map("created_by")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  person      Person      @relation(fields: [personId], references: [id])
+  absenceType AbsenceType @relation(fields: [absenceTypeId], references: [id])
+
+  @@map("absences")
+}
+
+model BenefitPlan {
+  id                      String   @id @default(cuid()) @map("plan_id")
+  companyId               String   @map("company_id")
+  bgId                    String   @map("bg_id")
+  planCode                String   @map("plan_code")
+  planName                String   @map("plan_name")
+  planType                String   @map("plan_type")
+  coverage                String?
+  employerContributionPct Decimal  @default(0) @map("employer_contribution_pct")
+  activeFlag              Boolean  @default(true) @map("active_flag")
+  effectiveFrom           DateTime @default(now()) @map("effective_from")
+  effectiveTo             DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy               String   @default("SYSTEM") @map("created_by")
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  enrollments   BenefitEnrollment[]
+
+  @@map("benefit_plans")
+}
+
+model BenefitEnrollment {
+  id               String   @id @default(cuid()) @map("enrollment_id")
+  companyId        String   @map("company_id")
+  bgId             String   @map("bg_id")
+  personId         String   @map("person_id")
+  planId           String   @map("plan_id")
+  assignmentId     String   @map("assignment_id")
+  enrollmentStatus String   @default("Enrolled") @map("enrollment_status")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  person     Person      @relation(fields: [personId], references: [id])
+  plan       BenefitPlan @relation(fields: [planId], references: [id])
+  assignment Assignment  @relation(fields: [assignmentId], references: [id])
+
+  @@map("benefit_enrollments")
+}
+
+model SecurityRole {
+  id            String   @id @default(cuid()) @map("role_id")
+  companyId     String   @map("company_id")
+  roleCode      String   @map("role_code")
+  roleName      String   @map("role_name")
+  description   String?
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+  users   User[]
+
+  @@map("security_roles")
+}
+
+model SecurityProfile {
+  id                  String   @id @default(cuid()) @map("profile_id")
+  companyId           String   @map("company_id")
+  profileCode         String   @map("profile_code")
+  profileName         String   @map("profile_name")
+  rlsRuleDescription  String?  @map("rls_rule_description")
+  activeFlag          Boolean  @default(true) @map("active_flag")
+  effectiveFrom       DateTime @default(now()) @map("effective_from")
+  effectiveTo         DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy           String   @default("SYSTEM") @map("created_by")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  company  Company  @relation(fields: [companyId], references: [id])
+  accesses SecurityProfileAccess[]
+  persons  SecurityProfilePerson[]
+
+  @@map("security_profiles")
+}
+
+model SecurityProfileAccess {
+  id             String   @id @default(cuid()) @map("profile_access_id")
+  companyId      String   @map("company_id")
+  profileId      String   @map("profile_id")
+  bgId           String   @map("bg_id")
+  businessTypeId String?  @map("business_type_id")
+  orgId          String?  @map("org_id")
+  activeFlag     Boolean  @default(true) @map("active_flag")
+  effectiveFrom  DateTime @default(now()) @map("effective_from")
+  effectiveTo    DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy      String   @default("SYSTEM") @map("created_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  profile SecurityProfile @relation(fields: [profileId], references: [id])
+
+  @@map("security_profile_accesses")
+}
+
+model SecurityProfilePerson {
+  id            String   @id @default(cuid()) @map("sp_person_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  profileId     String   @map("profile_id")
+  personId      String   @map("person_id")
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  profile SecurityProfile @relation(fields: [profileId], references: [id])
+  person  Person          @relation(fields: [personId], references: [id])
+
+  @@map("security_profile_persons")
+}
+
+model User {
+  id           String   @id @default(cuid()) @map("user_id")
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  roleId       String   @map("role_id")
+  personId     String?  @map("person_id")
+  activeFlag   Boolean  @default(true) @map("active_flag")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  role SecurityRole @relation(fields: [roleId], references: [id])
+
+  auditLogs     AuditLog[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid()) @map("audit_id")
+  companyId  String   @map("company_id")
+  userId     String   @map("user_id")
+  tableName  String   @map("table_name")
+  recordId   String   @map("record_id")
+  action     String
+  oldValue   String?  @map("old_value")
+  newValue   String?  @map("new_value")
+  changeDate DateTime @default(now()) @map("change_date")
+  ipAddress  String?  @map("ip_address")
+  createdBy  String   @default("SYSTEM") @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model PersonHistory {
+  id            String   @id @default(cuid()) @map("history_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  personId      String   @map("person_id")
+  assignmentId  String   @map("assignment_id")
+  changeType    String   @map("change_type")
+  fieldChanged  String   @map("field_changed")
+  oldValue      String?  @map("old_value")
+  newValue      String?  @map("new_value")
+  changeDate    DateTime @map("change_date")
+  changedBy     String   @map("changed_by")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  person     Person     @relation(fields: [personId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+
+  @@map("person_history")
+}
+
+model Notification {
+  id               String   @id @default(cuid()) @map("notification_id")
+  companyId        String   @map("company_id")
+  userId           String   @map("user_id")
+  notificationType String   @map("notification_type")
+  subject          String
+  message          String
+  status           String   @default("Unread")
+  sentDate         DateTime @default(now()) @map("sent_date")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model CostCenter {
+  id              String   @id @default(cuid()) @map("cost_center_id")
+  companyId       String   @map("company_id")
+  bgId            String   @map("bg_id")
+  orgId           String   @map("org_id")
+  costCenterCode  String   @map("cost_center_code")
+  costCenterName  String   @map("cost_center_name")
+  glAccount       String?  @map("gl_account")
+  activeFlag      Boolean  @default(true) @map("active_flag")
+  effectiveFrom   DateTime @default(now()) @map("effective_from")
+  effectiveTo     DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String   @default("SYSTEM") @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  businessGroup BusinessGroup  @relation(fields: [bgId], references: [id])
+  org           HrOrganization @relation(fields: [orgId], references: [id])
+
+  @@map("cost_centers")
+}
+
+model Competence {
+  id              String   @id @default(cuid()) @map("competence_id")
+  companyId       String   @map("company_id")
+  bgId            String   @map("bg_id")
+  competenceCode  String   @map("competence_code")
+  competenceName  String   @map("competence_name")
+  competenceType  String   @map("competence_type")
+  description     String?
+  activeFlag      Boolean  @default(true) @map("active_flag")
+  effectiveFrom   DateTime @default(now()) @map("effective_from")
+  effectiveTo     DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String   @default("SYSTEM") @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  personCompetences PersonCompetence[]
+
+  @@map("competences")
+}
+
+model PersonCompetence {
+  id                String    @id @default(cuid()) @map("person_comp_id")
+  companyId         String    @map("company_id")
+  bgId              String    @map("bg_id")
+  personId          String    @map("person_id")
+  competenceId      String    @map("competence_id")
+  proficiencyLevel  String    @map("proficiency_level")
+  certifiedFlag     Boolean   @default(false) @map("certified_flag")
+  certificationDate DateTime? @map("certification_date")
+  activeFlag        Boolean   @default(true) @map("active_flag")
+  effectiveFrom     DateTime  @default(now()) @map("effective_from")
+  effectiveTo       DateTime  @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy         String    @default("SYSTEM") @map("created_by")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  person     Person     @relation(fields: [personId], references: [id])
+  competence Competence @relation(fields: [competenceId], references: [id])
+
+  @@map("person_competences")
+}
+
+model PayBalance {
+  id               String   @id @default(cuid()) @map("balance_id")
+  companyId        String   @map("company_id")
+  bgId             String   @map("bg_id")
+  assignmentId     String   @map("assignment_id")
+  elementTypeId    String   @map("element_type_id")
+  balanceDimension String   @map("balance_dimension")
+  balanceAmount    Decimal  @map("balance_amount")
+  currency         String   @default("INR")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  assignment  Assignment  @relation(fields: [assignmentId], references: [id])
+  elementType ElementType @relation(fields: [elementTypeId], references: [id])
+
+  @@map("pay_balances")
+}
+
+model Payment {
+  id              String   @id @default(cuid()) @map("payment_id")
+  companyId       String   @map("company_id")
+  bgId            String   @map("bg_id")
+  payrollRunId    String   @map("payroll_run_id")
+  assignmentId    String   @map("assignment_id")
+  personId        String   @map("person_id")
+  netAmount       Decimal  @map("net_amount")
+  currency        String   @default("INR")
+  paymentMethod   String   @default("Bank Transfer") @map("payment_method")
+  paymentStatus   String   @default("Pending") @map("payment_status")
+  paymentDate     DateTime @map("payment_date")
+  transactionRef  String?  @map("transaction_ref")
+  activeFlag      Boolean  @default(true) @map("active_flag")
+  effectiveFrom   DateTime @default(now()) @map("effective_from")
+  effectiveTo     DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String   @default("SYSTEM") @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  payrollRun PayrollRun @relation(fields: [payrollRunId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+  person     Person     @relation(fields: [personId], references: [id])
+
+  @@map("payments")
+}
+
+model Payslip {
+  id              String   @id @default(cuid()) @map("payslip_id")
+  companyId       String   @map("company_id")
+  bgId            String   @map("bg_id")
+  payrollRunId    String   @map("payroll_run_id")
+  assignmentId    String   @map("assignment_id")
+  personId        String   @map("person_id")
+  periodName      String   @map("period_name")
+  grossAmount     Decimal  @map("gross_amount")
+  totalDeductions Decimal  @map("total_deductions")
+  netAmount       Decimal  @map("net_amount")
+  currency        String   @default("INR")
+  status          String   @default("Pending")
+  activeFlag      Boolean  @default(true) @map("active_flag")
+  effectiveFrom   DateTime @default(now()) @map("effective_from")
+  effectiveTo     DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String   @default("SYSTEM") @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  payrollRun PayrollRun @relation(fields: [payrollRunId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+  person     Person     @relation(fields: [personId], references: [id])
+
+  @@map("payslips")
+}
+
+model TaxDeclaration {
+  id              String   @id @default(cuid()) @map("declaration_id")
+  companyId       String   @map("company_id")
+  bgId            String   @map("bg_id")
+  personId        String   @map("person_id")
+  assignmentId    String   @map("assignment_id")
+  financialYear   String   @map("financial_year")
+  section         String
+  declaredAmount  Decimal  @map("declared_amount")
+  approvedAmount  Decimal  @default(0) @map("approved_amount")
+  proofSubmitted  Boolean  @default(false) @map("proof_submitted")
+  status          String   @default("Pending")
+  activeFlag      Boolean  @default(true) @map("active_flag")
+  effectiveFrom   DateTime @default(now()) @map("effective_from")
+  effectiveTo     DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String   @default("SYSTEM") @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  person     Person     @relation(fields: [personId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+
+  @@map("tax_declarations")
+}
+
+model Loan {
+  id                 String    @id @default(cuid()) @map("loan_id")
+  companyId          String    @map("company_id")
+  bgId               String    @map("bg_id")
+  personId           String    @map("person_id")
+  assignmentId       String    @map("assignment_id")
+  loanType           String    @map("loan_type")
+  loanAmount         Decimal   @map("loan_amount")
+  interestRate       Decimal   @default(0) @map("interest_rate")
+  emiAmount          Decimal   @map("emi_amount")
+  tenureMonths       Int       @map("tenure_months")
+  disbursementDate   DateTime  @map("disbursement_date")
+  outstandingBalance Decimal   @map("outstanding_balance")
+  loanStatus         String    @default("Active") @map("loan_status")
+  activeFlag         Boolean   @default(true) @map("active_flag")
+  effectiveFrom      DateTime  @default(now()) @map("effective_from")
+  effectiveTo        DateTime  @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy          String    @default("SYSTEM") @map("created_by")
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  person     Person     @relation(fields: [personId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+  repayments LoanRepayment[]
+
+  @@map("loans")
+}
+
+model LoanRepayment {
+  id               String   @id @default(cuid()) @map("repayment_id")
+  companyId        String   @map("company_id")
+  bgId             String   @map("bg_id")
+  loanId           String   @map("loan_id")
+  personId         String   @map("person_id")
+  assignmentId     String   @map("assignment_id")
+  payPeriodId      String   @map("pay_period_id")
+  emiAmount        Decimal  @map("emi_amount")
+  principal        Decimal
+  interest         Decimal  @default(0)
+  outstandingAfter Decimal  @map("outstanding_after")
+  repaymentStatus  String   @default("Scheduled") @map("repayment_status")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  loan        Loan          @relation(fields: [loanId], references: [id])
+  assignment  Assignment    @relation(fields: [assignmentId], references: [id])
+  payPeriod   PayrollPeriod @relation(fields: [payPeriodId], references: [id])
+
+  @@map("loan_repayments")
+}
+
+model HolidayCalendar {
+  id            String   @id @default(cuid()) @map("holiday_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  locationId    String   @map("location_id")
+  holidayDate   DateTime @map("holiday_date")
+  holidayName   String   @map("holiday_name")
+  holidayType   String   @map("holiday_type")
+  applicableTo  String   @default("All") @map("applicable_to")
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  location      Location      @relation(fields: [locationId], references: [id])
+
+  @@map("holiday_calendars")
+}
+
+model WorkSchedule {
+  id             String   @id @default(cuid()) @map("schedule_id")
+  companyId      String   @map("company_id")
+  bgId           String   @map("bg_id")
+  scheduleCode   String   @map("schedule_code")
+  scheduleName   String   @map("schedule_name")
+  shiftStart     String   @map("shift_start")
+  shiftEnd       String   @map("shift_end")
+  breakMinutes   Int      @default(60) @map("break_minutes")
+  workingHours   Decimal  @map("working_hours")
+  applicableDays String   @map("applicable_days")
+  activeFlag     Boolean  @default(true) @map("active_flag")
+  effectiveFrom  DateTime @default(now()) @map("effective_from")
+  effectiveTo    DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy      String   @default("SYSTEM") @map("created_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  timecards     Timecard[]
+
+  @@map("work_schedules")
+}
+
+model Timecard {
+  id               String   @id @default(cuid()) @map("timecard_id")
+  companyId        String   @map("company_id")
+  bgId             String   @map("bg_id")
+  personId         String   @map("person_id")
+  assignmentId     String   @map("assignment_id")
+  workDate         DateTime @map("work_date")
+  scheduleId       String   @map("schedule_id")
+  clockIn          String?  @map("clock_in")
+  clockOut         String?  @map("clock_out")
+  hoursWorked      Decimal  @default(0) @map("hours_worked")
+  attendanceStatus String   @default("Present") @map("attendance_status")
+  otHours          Decimal  @default(0) @map("ot_hours")
+  otRateMultiplier Decimal  @default(1) @map("ot_rate_multiplier")
+  otAmount         Decimal  @default(0) @map("ot_amount")
+  approvalStatus   String   @default("Pending") @map("approval_status")
+  approvedBy       String?  @map("approved_by")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  assignment   Assignment   @relation(fields: [assignmentId], references: [id])
+  workSchedule WorkSchedule @relation(fields: [scheduleId], references: [id])
+
+  @@map("timecards")
+}
+
+model Requisition {
+  id                    String   @id @default(cuid()) @map("requisition_id")
+  companyId             String   @map("company_id")
+  bgId                  String   @map("bg_id")
+  positionId            String   @map("position_id")
+  orgId                 String   @map("org_id")
+  requestedByPersonId   String   @map("requested_by_person_id")
+  vacancyCount          Int      @default(1) @map("vacancy_count")
+  priority              String   @default("Medium")
+  requisitionStatus     String   @default("Open") @map("requisition_status")
+  raisedDate            DateTime @map("raised_date")
+  targetCloseDate       DateTime @map("target_close_date")
+  activeFlag            Boolean  @default(true) @map("active_flag")
+  effectiveFrom         DateTime @default(now()) @map("effective_from")
+  effectiveTo           DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy             String   @default("SYSTEM") @map("created_by")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  position      Position      @relation(fields: [positionId], references: [id])
+  org           HrOrganization @relation(fields: [orgId], references: [id])
+
+  jobPostings  JobPosting[]
+  applications Application[]
+  offerLetters OfferLetter[]
+  hiredPersons HiredPerson[]
+
+  @@map("requisitions")
+}
+
+model JobPosting {
+  id                    String   @id @default(cuid()) @map("job_posting_id")
+  companyId             String   @map("company_id")
+  bgId                  String   @map("bg_id")
+  requisitionId         String   @map("requisition_id")
+  postingTitle          String   @map("posting_title")
+  postingDescription    String?  @map("posting_description")
+  qualificationRequired String?  @map("qualification_required")
+  experienceYearsMin    Int      @default(0) @map("experience_years_min")
+  experienceYearsMax    Int      @default(0) @map("experience_years_max")
+  salaryRangeMin        Decimal  @default(0) @map("salary_range_min")
+  salaryRangeMax        Decimal  @default(0) @map("salary_range_max")
+  postingChannel        String?  @map("posting_channel")
+  postingDate           DateTime @map("posting_date")
+  closingDate           DateTime @map("closing_date")
+  postingStatus         String   @default("Active") @map("posting_status")
+  activeFlag            Boolean  @default(true) @map("active_flag")
+  effectiveFrom         DateTime @default(now()) @map("effective_from")
+  effectiveTo           DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy             String   @default("SYSTEM") @map("created_by")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  requisition Requisition @relation(fields: [requisitionId], references: [id])
+
+  @@map("job_postings")
+}
+
+model Applicant {
+  id                 String   @id @default(cuid()) @map("applicant_id")
+  companyId          String   @map("company_id")
+  firstName          String   @map("first_name")
+  lastName           String   @map("last_name")
+  email              String
+  phone              String?
+  source             String?
+  currentCompany     String?  @map("current_company")
+  currentDesignation String?  @map("current_designation")
+  expectedSalary     Decimal? @map("expected_salary")
+  activeFlag         Boolean  @default(true) @map("active_flag")
+  effectiveFrom      DateTime @default(now()) @map("effective_from")
+  effectiveTo        DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy          String   @default("SYSTEM") @map("created_by")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  company      Company       @relation(fields: [companyId], references: [id])
+  applications Application[]
+  offerLetters OfferLetter[]
+  hiredPersons HiredPerson[]
+
+  @@map("applicants")
+}
+
+model Application {
+  id               String   @id @default(cuid()) @map("application_id")
+  companyId        String   @map("company_id")
+  applicantId      String   @map("applicant_id")
+  requisitionId    String   @map("requisition_id")
+  applicationDate  DateTime @map("application_date")
+  applicationStatus String  @default("Received") @map("application_status")
+  screeningScore   Int?     @map("screening_score")
+  shortlistedFlag  Boolean  @default(false) @map("shortlisted_flag")
+  offeredFlag      Boolean  @default(false) @map("offered_flag")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  applicant   Applicant   @relation(fields: [applicantId], references: [id])
+  requisition Requisition @relation(fields: [requisitionId], references: [id])
+
+  interviews   Interview[]
+  offerLetters OfferLetter[]
+  hiredPersons HiredPerson[]
+
+  @@map("applications")
+}
+
+model Interview {
+  id                 String    @id @default(cuid()) @map("interview_id")
+  companyId          String    @map("company_id")
+  applicationId      String    @map("application_id")
+  interviewRound     Int       @map("interview_round")
+  interviewDate      DateTime  @map("interview_date")
+  interviewerPersonId String   @map("interviewer_person_id")
+  interviewMode      String    @map("interview_mode")
+  interviewStatus    String    @default("Scheduled") @map("interview_status")
+  rating             Int?
+  feedback           String?
+  activeFlag         Boolean   @default(true) @map("active_flag")
+  effectiveFrom      DateTime  @default(now()) @map("effective_from")
+  effectiveTo        DateTime  @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy          String    @default("SYSTEM") @map("created_by")
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  application Application @relation(fields: [applicationId], references: [id])
+
+  @@map("interviews")
+}
+
+model OfferLetter {
+  id              String    @id @default(cuid()) @map("offer_id")
+  companyId       String    @map("company_id")
+  bgId            String    @map("bg_id")
+  applicationId   String    @map("application_id")
+  applicantId     String    @map("applicant_id")
+  requisitionId   String    @map("requisition_id")
+  positionId      String    @map("position_id")
+  orgId           String    @map("org_id")
+  proposedGradeId String    @map("proposed_grade_id")
+  offeredSalary   Decimal   @map("offered_salary")
+  joiningBonus    Decimal   @default(0) @map("joining_bonus")
+  offerDate       DateTime  @map("offer_date")
+  offerExpiryDate DateTime  @map("offer_expiry_date")
+  offerStatus     String    @default("Pending") @map("offer_status")
+  rejectionReason String?   @map("rejection_reason")
+  activeFlag      Boolean   @default(true) @map("active_flag")
+  effectiveFrom   DateTime  @default(now()) @map("effective_from")
+  effectiveTo     DateTime  @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String    @default("SYSTEM") @map("created_by")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  application Application @relation(fields: [applicationId], references: [id])
+  applicant   Applicant   @relation(fields: [applicantId], references: [id])
+  requisition Requisition @relation(fields: [requisitionId], references: [id])
+  position    Position    @relation(fields: [positionId], references: [id])
+  grade       Grade       @relation(fields: [proposedGradeId], references: [id])
+  hiredPersons HiredPerson[]
+
+  @@map("offer_letters")
+}
+
+model HiredPerson {
+  id              String   @id @default(cuid()) @map("hire_record_id")
+  companyId       String   @map("company_id")
+  bgId            String   @map("bg_id")
+  applicantId     String   @map("applicant_id")
+  applicationId   String   @map("application_id")
+  offerId         String   @map("offer_id")
+  personId        String   @map("person_id")
+  positionId      String   @map("position_id")
+  orgId           String   @map("org_id")
+  gradeId         String   @map("grade_id")
+  dateOfJoining   DateTime @map("date_of_joining")
+  probationEndDate DateTime @map("probation_end_date")
+  employmentType  String   @default("Permanent") @map("employment_type")
+  hiredSalary     Decimal  @map("hired_salary")
+  hireStatus      String   @default("Joined") @map("hire_status")
+  activeFlag      Boolean  @default(true) @map("active_flag")
+  effectiveFrom   DateTime @default(now()) @map("effective_from")
+  effectiveTo     DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String   @default("SYSTEM") @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  applicant   Applicant   @relation(fields: [applicantId], references: [id])
+  application Application @relation(fields: [applicationId], references: [id])
+  offer       OfferLetter @relation(fields: [offerId], references: [id])
+  position    Position    @relation(fields: [positionId], references: [id])
+  grade       Grade       @relation(fields: [gradeId], references: [id])
+  requisition Requisition @relation(fields: [orgId], references: [id])
+
+  @@map("hired_persons")
+}
+
+model TrainingProgram {
+  id            String   @id @default(cuid()) @map("program_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  programCode   String   @map("program_code")
+  programName   String   @map("program_name")
+  provider      String?
+  durationHours Int      @default(0) @map("duration_hours")
+  costPerPerson Decimal  @default(0) @map("cost_per_person")
+  deliveryMode  String   @default("Classroom") @map("delivery_mode")
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  businessGroup BusinessGroup @relation(fields: [bgId], references: [id])
+  enrollments   TrainingEnrollment[]
+
+  @@map("training_programs")
+}
+
+model TrainingEnrollment {
+  id               String    @id @default(cuid()) @map("enrollment_id")
+  companyId        String    @map("company_id")
+  bgId             String    @map("bg_id")
+  personId         String    @map("person_id")
+  programId        String    @map("program_id")
+  enrollmentDate   DateTime  @map("enrollment_date")
+  completionDate   DateTime? @map("completion_date")
+  completionStatus String    @default("Enrolled") @map("completion_status")
+  score            Int?
+  certificateIssued Boolean  @default(false) @map("certificate_issued")
+  activeFlag       Boolean   @default(true) @map("active_flag")
+  effectiveFrom    DateTime  @default(now()) @map("effective_from")
+  effectiveTo      DateTime  @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String    @default("SYSTEM") @map("created_by")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  person  Person          @relation(fields: [personId], references: [id])
+  program TrainingProgram @relation(fields: [programId], references: [id])
+
+  @@map("training_enrollments")
+}
+
+model Appraisal {
+  id               String   @id @default(cuid()) @map("appraisal_id")
+  companyId        String   @map("company_id")
+  bgId             String   @map("bg_id")
+  personId         String   @map("person_id")
+  assignmentId     String   @map("assignment_id")
+  reviewPeriod     String   @map("review_period")
+  reviewerPersonId String   @map("reviewer_person_id")
+  overallRating    Int?     @map("overall_rating")
+  recommendation   String?
+  appraisalStatus  String   @default("Draft") @map("appraisal_status")
+  activeFlag       Boolean  @default(true) @map("active_flag")
+  effectiveFrom    DateTime @default(now()) @map("effective_from")
+  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy        String   @default("SYSTEM") @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  person     Person     @relation(fields: [personId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+  ratings    AppraisalRating[]
+
+  @@map("appraisals")
+}
+
+model AppraisalRating {
+  id            String   @id @default(cuid()) @map("rating_id")
+  companyId     String   @map("company_id")
+  bgId          String   @map("bg_id")
+  appraisalId   String   @map("appraisal_id")
+  kraName       String   @map("kra_name")
+  kraWeightage  Int      @map("kra_weightage")
+  selfRating    Int?     @map("self_rating")
+  managerRating Int?     @map("manager_rating")
+  finalRating   Int?     @map("final_rating")
+  comments      String?
+  activeFlag    Boolean  @default(true) @map("active_flag")
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+  effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy     String   @default("SYSTEM") @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  appraisal Appraisal @relation(fields: [appraisalId], references: [id])
+
+  @@map("appraisal_ratings")
+}
+
+model Separation {
+  id                  String    @id @default(cuid()) @map("separation_id")
+  companyId           String    @map("company_id")
+  bgId                String    @map("bg_id")
+  personId            String    @map("person_id")
+  assignmentId        String    @map("assignment_id")
+  separationType      String    @map("separation_type")
+  reason              String?
+  resignationDate     DateTime? @map("resignation_date")
+  noticePeriodDays    Int       @default(30) @map("notice_period_days")
+  lastWorkingDate     DateTime? @map("last_working_date")
+  separationStatus    String    @default("Initiated") @map("separation_status")
+  approvedByPersonId  String?   @map("approved_by_person_id")
+  activeFlag          Boolean   @default(true) @map("active_flag")
+  effectiveFrom       DateTime  @default(now()) @map("effective_from")
+  effectiveTo         DateTime  @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy           String    @default("SYSTEM") @map("created_by")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  person     Person     @relation(fields: [personId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+
+  exitChecklists   ExitChecklist[]
+  finalSettlements FinalSettlement[]
+
+  @@map("separations")
+}
+
+model ExitChecklist {
+  id             String    @id @default(cuid()) @map("checklist_id")
+  companyId      String    @map("company_id")
+  bgId           String    @map("bg_id")
+  separationId   String    @map("separation_id")
+  personId       String    @map("person_id")
+  checklistItem  String    @map("checklist_item")
+  department     String?
+  assignedTo     String?   @map("assigned_to")
+  status         String    @default("Pending")
+  completionDate DateTime? @map("completion_date")
+  remarks        String?
+  activeFlag     Boolean   @default(true) @map("active_flag")
+  effectiveFrom  DateTime  @default(now()) @map("effective_from")
+  effectiveTo    DateTime  @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy      String    @default("SYSTEM") @map("created_by")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  separation Separation @relation(fields: [separationId], references: [id])
+
+  @@map("exit_checklists")
+}
+
+model FinalSettlement {
+  id                    String   @id @default(cuid()) @map("settlement_id")
+  companyId             String   @map("company_id")
+  bgId                  String   @map("bg_id")
+  separationId          String   @map("separation_id")
+  personId              String   @map("person_id")
+  assignmentId          String   @map("assignment_id")
+  pendingSalary         Decimal  @default(0) @map("pending_salary")
+  leaveEncashmentDays   Int      @default(0) @map("leave_encashment_days")
+  leaveEncashmentAmount Decimal  @default(0) @map("leave_encashment_amount")
+  gratuityAmount        Decimal  @default(0) @map("gratuity_amount")
+  bonusDue              Decimal  @default(0) @map("bonus_due")
+  totalEarnings         Decimal  @default(0) @map("total_earnings")
+  recoveryLoan          Decimal  @default(0) @map("recovery_loan")
+  recoveryOther         Decimal  @default(0) @map("recovery_other")
+  totalDeductions       Decimal  @default(0) @map("total_deductions")
+  netSettlement         Decimal  @default(0) @map("net_settlement")
+  settlementStatus      String   @default("Pending") @map("settlement_status")
+  activeFlag            Boolean  @default(true) @map("active_flag")
+  effectiveFrom         DateTime @default(now()) @map("effective_from")
+  effectiveTo           DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy             String   @default("SYSTEM") @map("created_by")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  separation Separation @relation(fields: [separationId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+
+  @@map("final_settlements")
+}
