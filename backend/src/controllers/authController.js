@@ -49,7 +49,7 @@ const register = async (req, res, next) => {
 };
 
 const me = async (req, res) => {
-  res.json({ id: req.user.id, email: req.user.email, role: req.user.role });
+  res.json({ id: req.user.id, email: req.user.email, role: req.user.role?.roleName || 'Guest' });
 };
 
 module.exports = { login, register, me };

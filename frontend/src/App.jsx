@@ -6,7 +6,7 @@ import Layout from './pages/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import {
-  Companies, Locations, LocationTypes, BusinessGroups, BusinessTypes,
+  Companies, Countries, States, Cities, Locations, LocationTypes, BusinessGroups, BusinessTypes,
   LegalEntities, OperatingUnits, HrOrganizations,
   Grades, GradeSteps, GradeLadders, Jobs, Positions,
   Persons, Assignments, Supervisors,
@@ -41,6 +41,9 @@ const App = () => (
         {/* Organization */}
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/companies" element={<ProtectedRoute><Companies /></ProtectedRoute>} />
+        <Route path="/countries" element={<ProtectedRoute><Countries /></ProtectedRoute>} />
+        <Route path="/states" element={<ProtectedRoute><States /></ProtectedRoute>} />
+        <Route path="/cities" element={<ProtectedRoute><Cities /></ProtectedRoute>} />
         <Route path="/locations" element={<ProtectedRoute><Locations /></ProtectedRoute>} />
         <Route path="/location-types" element={<ProtectedRoute><LocationTypes /></ProtectedRoute>} />
         <Route path="/business-groups" element={<ProtectedRoute><BusinessGroups /></ProtectedRoute>} />

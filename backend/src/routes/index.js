@@ -4,7 +4,11 @@ const { authenticate } = require('../middleware/auth');
 const crudController = require('../controllers/crudController');
 const authController = require('../controllers/authController');
 const { getDashboard } = require('../controllers/dashboardController');
-
+const { getCityDetails } = require('../controllers/locationController');
+const countryController = require('../controllers/countryController');
+const stateController = require('../controllers/stateController');
+const cityController = require('../controllers/cityController');
+const { validate } = require('../middleware/validate');
 // Auth routes
 router.post('/auth/login', authController.login);
 router.post('/auth/register', authController.register);
@@ -13,20 +17,54 @@ router.get('/auth/me', authenticate, authController.me);
 // Dashboard
 router.get('/dashboard', authenticate, getDashboard);
 
+// Location-specific routes
+router.get('/location/city', authenticate, getCityDetails);
+
+// Country Master
+router.get('/country-master', authenticate, countryController.getAll);
+router.post('/country-master', authenticate, countryController.create);
+router.put('/country-master/:id', authenticate, countryController.update);
+router.delete('/country-master/:id', authenticate, countryController.remove);
+
+// State Master
+router.get('/state-master', authenticate, stateController.getAll);
+router.post('/state-master', authenticate, stateController.create);
+router.put('/state-master/:id', authenticate, stateController.update);
+router.delete('/state-master/:id', authenticate, stateController.remove);
+
+// City Master
+router.get('/city-master', authenticate, cityController.getAll);
+router.post('/city-master', authenticate, cityController.create);
+router.put('/city-master/:id', authenticate, cityController.update);
+router.delete('/city-master/:id', authenticate, cityController.remove);
+
 // Generic CRUD route builder
 const makeRoutes = (path, model, relations = {}) => {
   const ctrl = crudController(model, relations);
   router.get(`/${path}`, authenticate, ctrl.getAll);
   router.get(`/${path}/:id`, authenticate, ctrl.getById);
-  router.post(`/${path}`, authenticate, ctrl.create);
-  router.put(`/${path}/:id`, authenticate, ctrl.update);
+  router.post(`/${path}`, authenticate, validate, ctrl.create);      // ✅ validate added
+  router.put(`/${path}/:id`, authenticate, validate, ctrl.update);
   router.delete(`/${path}/:id`, authenticate, ctrl.remove);
 };
 
 // Organization Structure
 makeRoutes('companies', 'company');
-makeRoutes('location-types', 'locationType');
-makeRoutes('locations', 'location', { company: true, locationType: true });
+// Location Types (custom - auto-generates locationTypeCode)
+const locationTypeController = require('../controllers/locationTypeController');
+router.get('/location-types', authenticate, locationTypeController.getAll);
+router.post('/location-types', authenticate, locationTypeController.create);
+router.put('/location-types/:id', authenticate, locationTypeController.update);
+router.delete('/location-types/:id', authenticate, locationTypeController.remove);
+
+
+router.get('/locations', authenticate, crudController('location', { company: true, locationType: true }).getAll);
+router.get('/locations/:id', authenticate, crudController('location', { company: true, locationType: true }).getById);
+router.post('/locations', authenticate, validate, crudController('location', { company: true, locationType: true }).create);
+router.put('/locations/:id', authenticate, validate, crudController('location', { company: true, locationType: true }).update);
+router.delete('/locations/:id', authenticate, crudController('location', { company: true, locationType: true }).remove);
+
+
 makeRoutes('business-groups', 'businessGroup', { company: true, location: true });
 makeRoutes('business-types', 'businessType', { company: true });
 makeRoutes('legal-entities', 'legalEntity', { company: true, businessGroup: true, businessType: true, location: true });

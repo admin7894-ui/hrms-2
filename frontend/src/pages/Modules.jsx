@@ -10,18 +10,87 @@ export const Companies = () => (
     columns={[
       { key: 'companyName', label: 'Name' },
       { key: 'primaryCurrency', label: 'Currency' },
-      { key: 'country', label: 'Country' },
+      { key: 'country', label: 'Country', render: (v) => v?.countryName || v },
       { key: 'registrationNo', label: 'Reg No' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
       { name: 'companyName', label: 'Company Name', required: true },
       { name: 'primaryCurrency', label: 'Currency', type: 'select', options: ['INR', 'USD', 'EUR', 'GBP'] },
-      { name: 'country', label: 'Country', required: true },
+      { name: 'country', label: 'Country', type: 'select', optionsUrl: 'country-master', optionLabel: 'countryName', optionValue: 'countryName', required: true },
       { name: 'registrationNo', label: 'Registration No' },
-      { name: 'activeFlag', label: 'Active', type: 'checkbox' },
+      { name: 'isActive', label: 'Active', type: 'toggle' },
     ]}
-    defaultValues={{ primaryCurrency: 'INR', country: 'India', activeFlag: true }}
+    defaultValues={{ primaryCurrency: 'INR', country: 'India', isActive: true }}
+  />
+);
+
+export const Countries = () => (
+  <CRUDModule
+    title="Countries"
+    endpoint="country-master"
+    deleteConfirmation="Are you sure you want to permanently delete this country? This action cannot be undone."
+    columns={[
+      { key: 'countryName', label: 'Country Name' },
+      { key: 'countryCode', label: 'Code' },
+      { key: 'createdBy', label: 'Created By' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
+    ]}
+    fields={[
+      { name: 'countryName', label: 'Country Name', required: true, placeholder: 'e.g. India' },
+      { name: 'countryCode', label: 'Country Code', placeholder: 'Auto-generated', readOnly: true },
+      { name: 'createdBy', label: 'Created By', required: true, placeholder: 'Your Name' },
+      { name: 'isActive', label: 'Active Status', type: 'toggle' },
+    ]}
+    defaultValues={{ isActive: true, createdBy: 'SYSTEM' }}
+  />
+);
+
+export const States = () => (
+  <CRUDModule
+    title="States"
+    endpoint="state-master"
+    deleteConfirmation="Are you sure you want to permanently delete this state? This action cannot be undone."
+    columns={[
+      { key: 'stateName', label: 'State Name' },
+      { key: 'stateCode', label: 'Code' },
+      { key: 'country', label: 'Country', render: (v) => v?.countryName || v },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
+    ]}
+    fields={[
+      { name: 'stateName', label: 'State Name', required: true, placeholder: 'e.g. Tamil Nadu' },
+      { name: 'countryId', label: 'Country', type: 'select', optionsUrl: 'country-master', optionLabel: 'countryName', required: true },
+      { name: 'stateCode', label: 'State Code', placeholder: 'Auto-generated', readOnly: true },
+      { name: 'createdBy', label: 'Created By', required: true, placeholder: 'Your Name' },
+      { name: 'isActive', label: 'Active Status', type: 'toggle' },
+    ]}
+    defaultValues={{ isActive: true, createdBy: 'SYSTEM' }}
+  />
+);
+
+export const Cities = () => (
+  <CRUDModule
+    title="Cities"
+    endpoint="city-master"
+    deleteConfirmation="Are you sure you want to permanently delete this city? This action cannot be undone."
+    columns={[
+      { key: 'cityName', label: 'City Name' },
+      { key: 'cityCode', label: 'Code' },
+      { key: 'pincode', label: 'Pincode' },
+      { key: 'state', label: 'State', render: (v) => v?.stateName || v },
+      { key: 'country', label: 'Country', render: (v) => v?.countryName || v },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
+    ]}
+    fields={[
+      { name: 'countryId', label: 'Country', type: 'select', optionsUrl: 'country-master', optionLabel: 'countryName', required: true },
+      { name: 'stateId', label: 'State', type: 'select', optionsUrl: 'state-master', optionLabel: 'stateName', dependsOn: 'countryId', required: true },
+      { name: 'cityName', label: 'City Name', required: true, placeholder: 'e.g. Chennai' },
+      { name: 'pincode', label: 'Pincode', required: true, placeholder: 'e.g. 600001' },
+      { name: 'cityCode', label: 'City Code', placeholder: 'Auto-generated', readOnly: true },
+      { name: 'createdBy', label: 'Created By', required: true, placeholder: 'Your Name' },
+      { name: 'isActive', label: 'Active Status', type: 'toggle' },
+    ]}
+    defaultValues={{ isActive: true, createdBy: 'SYSTEM' }}
   />
 );
 
@@ -35,19 +104,36 @@ export const Locations = () => (
       { key: 'state', label: 'State' },
       { key: 'country', label: 'Country' },
       { key: 'pincode', label: 'Pincode' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'locationTypeId', label: 'Location Type ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'locationTypeId', label: 'Location Type', type: 'select', optionsUrl: 'location-types', optionLabel: 'locationTypeName', dependsOn: 'companyId', required: true },
       { name: 'locationName', label: 'Location Name', required: true },
-      { name: 'address1', label: 'Address' },
-      { name: 'city', label: 'City' },
-      { name: 'state', label: 'State' },
-      { name: 'country', label: 'Country' },
-      { name: 'pincode', label: 'Pincode' },
+      { name: 'address1', label: 'Address', required: true },
+      {
+        name: 'city',
+        label: 'City',
+        type: 'select',               // ← dropdown
+        optionsUrl: 'city-master',    // ← fetches from city master
+        optionLabel: 'cityName',
+        optionValue: 'cityName',      // ← saves city name not id
+        required: true,
+        trigger: {                    // ← auto-fills other fields on select
+          url: 'location/city',
+          params: (val) => ({ name: val }),
+          mapping: {
+            state: 'state',
+            country: 'country',
+            pincode: 'pincode'
+          }
+        }
+      },
+      { name: 'state', label: 'State', readOnly: true },      // ← auto-filled
+      { name: 'country', label: 'Country', readOnly: true },  // ← auto-filled
+      { name: 'pincode', label: 'Pincode', readOnly: true },  // ← auto-filled
     ]}
-    defaultValues={{ country: 'India', activeFlag: true }}
+    defaultValues={{ country: 'India', isActive: true }}
   />
 );
 
@@ -56,14 +142,16 @@ export const LocationTypes = () => (
     title="Location Types"
     endpoint="location-types"
     columns={[
+      { key: 'locationTypeCode', label: 'Code' },
       { key: 'locationTypeName', label: 'Type Name' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
       { name: 'locationTypeName', label: 'Location Type Name', required: true },
-      { name: 'activeFlag', label: 'Active', type: 'checkbox' },
+      { name: 'description', label: 'Description', type: 'textarea', full: true },
     ]}
-    defaultValues={{ activeFlag: true }}
+    defaultValues={{ isActive: true }}
   />
 );
 
@@ -74,11 +162,11 @@ export const BusinessGroups = () => (
     columns={[
       { key: 'bgName', label: 'Name' },
       { key: 'currencyCode', label: 'Currency' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgLocationId', label: 'Location ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgLocationId', label: 'Location', type: 'select', optionsUrl: 'locations', optionLabel: 'locationName', required: true },
       { name: 'bgName', label: 'Group Name', required: true },
       { name: 'currencyCode', label: 'Currency', type: 'select', options: ['INR', 'USD', 'EUR'] },
     ]}
@@ -93,10 +181,10 @@ export const BusinessTypes = () => (
     columns={[
       { key: 'businessTypeName', label: 'Type' },
       { key: 'description', label: 'Description' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
       { name: 'businessTypeName', label: 'Type Name', required: true },
       { name: 'description', label: 'Description', type: 'textarea', full: true },
     ]}
@@ -112,13 +200,13 @@ export const LegalEntities = () => (
       { key: 'leName', label: 'Entity Name' },
       { key: 'taxRegistrationNo', label: 'Tax Reg No' },
       { key: 'functionalCurrency', label: 'Currency' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'locationId', label: 'Location ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'businessTypeId', label: 'Business Type ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'locationId', label: 'Location', type: 'select', optionsUrl: 'locations', optionLabel: 'locationName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'businessTypeId', label: 'Business Type', type: 'select', optionsUrl: 'business-types', optionLabel: 'businessTypeName', required: true },
       { name: 'leName', label: 'Entity Name', required: true },
       { name: 'taxRegistrationNo', label: 'Tax Registration No' },
       { name: 'functionalCurrency', label: 'Currency', type: 'select', options: ['INR', 'USD', 'EUR'] },
@@ -135,19 +223,19 @@ export const OperatingUnits = () => (
       { key: 'ouName', label: 'OU Name' },
       { key: 'ouShortCode', label: 'Code' },
       { key: 'currencyCode', label: 'Currency' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'leId', label: 'Legal Entity ID', required: true },
-      { name: 'businessTypeId', label: 'Business Type ID', required: true },
-      { name: 'locationId', label: 'Location ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'leId', label: 'Legal Entity', type: 'select', optionsUrl: 'legal-entities', optionLabel: 'leName', required: true },
+      { name: 'businessTypeId', label: 'Business Type', type: 'select', optionsUrl: 'business-types', optionLabel: 'businessTypeName', required: true },
+      { name: 'locationId', label: 'Location', type: 'select', optionsUrl: 'locations', optionLabel: 'locationName', required: true },
       { name: 'ouName', label: 'OU Name', required: true },
       { name: 'ouShortCode', label: 'Short Code' },
       { name: 'currencyCode', label: 'Currency', type: 'select', options: ['INR', 'USD', 'EUR'] },
     ]}
-    defaultValues={{ currencyCode: 'INR', activeFlag: true }}
+    defaultValues={{ currencyCode: 'INR', isActive: true }}
   />
 );
 
@@ -159,25 +247,24 @@ export const HrOrganizations = () => (
       { key: 'orgName', label: 'Org Name' },
       { key: 'orgCode', label: 'Code' },
       { key: 'orgType', label: 'Type' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'leId', label: 'Legal Entity ID', required: true },
-      { name: 'businessTypeId', label: 'Business Type ID', required: true },
-      { name: 'locationId', label: 'Location ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'leId', label: 'Legal Entity', type: 'select', optionsUrl: 'legal-entities', optionLabel: 'leName', required: true },
+      { name: 'businessTypeId', label: 'Business Type', type: 'select', optionsUrl: 'business-types', optionLabel: 'businessTypeName', required: true },
+      { name: 'locationId', label: 'Location', type: 'select', optionsUrl: 'locations', optionLabel: 'locationName', required: true },
       { name: 'orgName', label: 'Org Name', required: true },
       { name: 'orgCode', label: 'Org Code', required: true },
       { name: 'orgType', label: 'Org Type', type: 'select', options: ['Department', 'Division', 'Team', 'Unit'] },
-      { name: 'parentOrgId', label: 'Parent Org ID' },
+      { name: 'parentOrgId', label: 'Parent Org', type: 'select', optionsUrl: 'hr-organizations', optionLabel: 'orgName' },
     ]}
-    defaultValues={{ activeFlag: true }}
+    defaultValues={{ isActive: true }}
   />
 );
 
 // ─── HR CORE ────────────────────────────────────────────────────────────────
-
 export const Persons = () => (
   <CRUDModule
     title="Employees"
@@ -192,29 +279,57 @@ export const Persons = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'personType', label: 'Person Type', type: 'select', options: ['EMP', 'CONTRACTOR', 'CONSULTANT'] },
       { name: 'firstName', label: 'First Name', required: true },
       { name: 'middleName', label: 'Middle Name' },
       { name: 'lastName', label: 'Last Name', required: true },
       { name: 'dateOfBirth', label: 'Date of Birth', type: 'date' },
       { name: 'gender', label: 'Gender', type: 'select', options: ['M', 'F', 'Other'] },
-      { name: 'nationality', label: 'Nationality' },
+      {
+        name: 'nationality',
+        label: 'Nationality',
+        type: 'select',
+        optionsUrl: 'country-master',
+        optionLabel: 'countryName',
+        optionValue: 'countryName',
+      },
       { name: 'nationalId', label: 'National ID (PAN)' },
       { name: 'email', label: 'Email', type: 'email', required: true },
       { name: 'hireDate', label: 'Hire Date', type: 'date' },
       { name: 'phoneNumber', label: 'Phone' },
       { name: 'addressLine1', label: 'Address', full: true },
-      { name: 'city', label: 'City' },
-      { name: 'state', label: 'State' },
-      { name: 'country', label: 'Country' },
-      { name: 'pincode', label: 'Pincode' },
+      {
+        name: 'city',
+        label: 'City',
+        type: 'select',
+        optionsUrl: 'city-master',
+        optionLabel: 'cityName',
+        optionValue: 'cityName',
+        trigger: {
+          url: 'location/city',
+          params: (val) => ({ name: val }),
+          mapping: {
+            state: 'state',
+            country: 'country',
+            pincode: 'pincode',
+          }
+        }
+      },
+      { name: 'state', label: 'State', readOnly: true },
+      { name: 'country', label: 'Country', readOnly: true },
+      { name: 'pincode', label: 'Pincode', readOnly: true },
       { name: 'emergencyName', label: 'Emergency Contact' },
       { name: 'emergencyPhone', label: 'Emergency Phone' },
-      { name: 'emergencyRelationship', label: 'Relationship' },
+      {
+        name: 'emergencyRelationship',
+        label: 'Relationship',
+        type: 'select',
+        options: ['Spouse', 'Parent', 'Sibling', 'Child', 'Friend', 'Other'],
+      },
     ]}
-    defaultValues={{ personType: 'EMP', gender: 'M', country: 'India', activeFlag: true }}
+    defaultValues={{ personType: 'EMP', gender: 'M', activeFlag: true }}
   />
 );
 
@@ -230,8 +345,8 @@ export const Grades = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'gradeCode', label: 'Grade Code', required: true },
       { name: 'gradeName', label: 'Grade Name', required: true },
       { name: 'minSalary', label: 'Min Salary', type: 'number' },
@@ -251,9 +366,9 @@ export const GradeSteps = () => (
       { key: 'stepAmount', label: 'Amount', render: (v) => `₹${Number(v).toLocaleString()}` },
     ]}
     fields={[
-      { name: 'gradeId', label: 'Grade ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'companyId', label: 'Company ID', required: true },
+      { name: 'gradeId', label: 'Grade', type: 'select', optionsUrl: 'grades', optionLabel: 'gradeName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
       { name: 'stepNumber', label: 'Step Number', type: 'number', required: true },
       { name: 'stepName', label: 'Step Name', required: true },
       { name: 'stepAmount', label: 'Step Amount', type: 'number', required: true },
@@ -272,11 +387,11 @@ export const GradeLadders = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'ladderName', label: 'Ladder Name', required: true },
-      { name: 'fromGradeId', label: 'From Grade ID', required: true },
-      { name: 'toGradeId', label: 'To Grade ID', required: true },
+      { name: 'fromGradeId', label: 'From Grade', type: 'select', optionsUrl: 'grades', optionLabel: 'gradeName', required: true },
+      { name: 'toGradeId', label: 'To Grade', type: 'select', optionsUrl: 'grades', optionLabel: 'gradeName', required: true },
       { name: 'sequence', label: 'Sequence', type: 'number' },
       { name: 'minYearsInGrade', label: 'Min Years in Grade', type: 'number' },
     ]}
@@ -295,8 +410,8 @@ export const Jobs = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'jobCode', label: 'Job Code', required: true },
       { name: 'jobName', label: 'Job Name', required: true },
       { name: 'jobFamily', label: 'Job Family' },
@@ -316,12 +431,12 @@ export const Positions = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'jobId', label: 'Job ID', required: true },
-      { name: 'orgId', label: 'HR Org ID', required: true },
-      { name: 'gradeId', label: 'Grade ID', required: true },
-      { name: 'locationId', label: 'Location ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'jobId', label: 'Job', type: 'select', optionsUrl: 'jobs', optionLabel: 'jobName', required: true },
+      { name: 'orgId', label: 'HR Org', type: 'select', optionsUrl: 'hr-organizations', optionLabel: 'orgName', required: true },
+      { name: 'gradeId', label: 'Grade', type: 'select', optionsUrl: 'grades', optionLabel: 'gradeName', required: true },
+      { name: 'locationId', label: 'Location', type: 'select', optionsUrl: 'locations', optionLabel: 'locationName', required: true },
       { name: 'positionName', label: 'Position Name', required: true },
       { name: 'headcount', label: 'Headcount', type: 'number' },
     ]}
@@ -342,15 +457,15 @@ export const Assignments = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'orgId', label: 'HR Org ID', required: true },
-      { name: 'positionId', label: 'Position ID' },
-      { name: 'jobId', label: 'Job ID' },
-      { name: 'gradeId', label: 'Grade ID' },
-      { name: 'payrollId', label: 'Payroll Period ID' },
-      { name: 'assignmentStatusTypeId', label: 'Status Type ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'orgId', label: 'HR Org', type: 'select', optionsUrl: 'hr-organizations', optionLabel: 'orgName', required: true },
+      { name: 'positionId', label: 'Position', type: 'select', optionsUrl: 'positions', optionLabel: 'positionName' },
+      { name: 'jobId', label: 'Job', type: 'select', optionsUrl: 'jobs', optionLabel: 'jobName' },
+      { name: 'gradeId', label: 'Grade', type: 'select', optionsUrl: 'grades', optionLabel: 'gradeName' },
+      { name: 'payrollId', label: 'Payroll Period', type: 'select', optionsUrl: 'payroll-periods', optionLabel: 'periodName' },
+      { name: 'assignmentStatusTypeId', label: 'Status Type', type: 'select', optionsUrl: 'assignment-status-types', optionLabel: 'statusName', required: true },
       { name: 'assignmentType', label: 'Assignment Type', type: 'select', options: ['PRIMARY', 'SECONDARY'] },
     ]}
     defaultValues={{ assignmentType: 'PRIMARY', activeFlag: true }}
@@ -366,11 +481,11 @@ export const Supervisors = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
-      { name: 'supervisorPersonId', label: 'Supervisor Person ID', required: true },
-      { name: 'supervisorAssignmentId', label: 'Supervisor Assignment ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
+      { name: 'supervisorPersonId', label: 'Supervisor', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'supervisorAssignmentId', label: 'Supervisor Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
     ]}
     defaultValues={{ activeFlag: true }}
   />
@@ -391,8 +506,8 @@ export const PayrollPeriods = () => (
       { key: 'periodType', label: 'Type' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'payrollName', label: 'Payroll Name', required: true },
       { name: 'payrollCode', label: 'Payroll Code', required: true },
       { name: 'periodName', label: 'Period Name', required: true },
@@ -440,8 +555,8 @@ export const ElementTypes = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'elementCode', label: 'Element Code', required: true },
       { name: 'elementName', label: 'Element Name', required: true },
       { name: 'classification', label: 'Classification', type: 'select', options: ['Earnings', 'Deductions', 'Employer Contributions', 'Informational'] },
@@ -463,10 +578,10 @@ export const ElementEntries = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
-      { name: 'elementTypeId', label: 'Element Type ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
+      { name: 'elementTypeId', label: 'Element Type', type: 'select', optionsUrl: 'element-types', optionLabel: 'elementName', required: true },
       { name: 'value', label: 'Value', type: 'number', required: true },
       { name: 'currency', label: 'Currency', type: 'select', options: ['INR', 'USD'] },
     ]}
@@ -486,9 +601,9 @@ export const Salaries = () => (
       { key: 'approvalStatus', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
       { name: 'basicAmount', label: 'Basic Amount', type: 'number', required: true },
       { name: 'annualGross', label: 'Annual Gross', type: 'number', required: true },
       { name: 'currency', label: 'Currency', type: 'select', options: ['INR', 'USD'] },
@@ -510,9 +625,9 @@ export const PayrollRuns = () => (
       { key: 'totalNet', label: 'Net Total', render: (v) => `₹${Number(v).toLocaleString()}` },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'payPeriodId', label: 'Pay Period ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'payPeriodId', label: 'Pay Period', type: 'select', optionsUrl: 'payroll-periods', optionLabel: 'periodName', required: true },
       { name: 'runDate', label: 'Run Date', type: 'date', required: true },
       { name: 'runStatus', label: 'Status', type: 'select', options: ['Pending', 'Processing', 'Completed', 'Failed'] },
       { name: 'totalEmployees', label: 'Total Employees', type: 'number' },
@@ -537,11 +652,11 @@ export const Payslips = () => (
       { key: 'status', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'payrollRunId', label: 'Payroll Run ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'payrollRunId', label: 'Payroll Run', type: 'select', optionsUrl: 'payroll-runs', optionLabel: 'id', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
       { name: 'periodName', label: 'Period Name', required: true },
       { name: 'grossAmount', label: 'Gross Amount', type: 'number', required: true },
       { name: 'totalDeductions', label: 'Total Deductions', type: 'number' },
@@ -565,10 +680,10 @@ export const TaxDeclarations = () => (
       { key: 'status', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
       { name: 'financialYear', label: 'Financial Year', required: true, placeholder: '2025-26' },
       { name: 'section', label: 'Section (e.g. 80C)', required: true },
       { name: 'declaredAmount', label: 'Declared Amount', type: 'number', required: true },
@@ -594,8 +709,8 @@ export const AbsenceTypes = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'absenceCode', label: 'Absence Code', required: true },
       { name: 'absenceName', label: 'Absence Name', required: true },
       { name: 'entitlementPerYear', label: 'Days per Year', type: 'number' },
@@ -619,10 +734,10 @@ export const Absences = () => (
       { key: 'status', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'absenceTypeId', label: 'Leave Type ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'absenceTypeId', label: 'Leave Type', type: 'select', optionsUrl: 'absence-types', optionLabel: 'absenceName', required: true },
       { name: 'startDate', label: 'Start Date', type: 'date', required: true },
       { name: 'endDate', label: 'End Date', type: 'date', required: true },
       { name: 'days', label: 'Number of Days', type: 'number', required: true },
@@ -645,12 +760,12 @@ export const Timecards = () => (
       { key: 'approvalStatus', label: 'Approval' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
       { name: 'workDate', label: 'Work Date', type: 'date', required: true },
-      { name: 'scheduleId', label: 'Work Schedule ID', required: true },
+      { name: 'scheduleId', label: 'Work Schedule', type: 'select', optionsUrl: 'work-schedules', optionLabel: 'scheduleName', required: true },
       { name: 'clockIn', label: 'Clock In', type: 'time' },
       { name: 'clockOut', label: 'Clock Out', type: 'time' },
       { name: 'hoursWorked', label: 'Hours Worked', type: 'number' },
@@ -700,9 +815,9 @@ export const HolidayCalendars = () => (
       { key: 'applicableTo', label: 'Applicable To' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'locationId', label: 'Location ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'locationId', label: 'Location', type: 'select', optionsUrl: 'locations', optionLabel: 'locationName', required: true },
       { name: 'holidayDate', label: 'Holiday Date', type: 'date', required: true },
       { name: 'holidayName', label: 'Holiday Name', required: true },
       { name: 'holidayType', label: 'Type', type: 'select', options: ['National', 'Regional', 'Restricted', 'Optional'] },
@@ -726,11 +841,11 @@ export const Requisitions = () => (
       { key: 'raisedDate', label: 'Raised', render: (v) => v ? new Date(v).toLocaleDateString() : '—' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'positionId', label: 'Position ID', required: true },
-      { name: 'orgId', label: 'HR Org ID', required: true },
-      { name: 'requestedByPersonId', label: 'Requested By (Person ID)', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'positionId', label: 'Position', type: 'select', optionsUrl: 'positions', optionLabel: 'positionName', required: true },
+      { name: 'orgId', label: 'HR Org', type: 'select', optionsUrl: 'hr-organizations', optionLabel: 'orgName', required: true },
+      { name: 'requestedByPersonId', label: 'Requested By', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
       { name: 'vacancyCount', label: 'Vacancy Count', type: 'number' },
       { name: 'priority', label: 'Priority', type: 'select', options: ['Low', 'Medium', 'High', 'Critical'] },
       { name: 'requisitionStatus', label: 'Status', type: 'select', options: ['Open', 'In Progress', 'Closed', 'Cancelled'] },
@@ -753,9 +868,9 @@ export const JobPostings = () => (
       { key: 'postingStatus', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'requisitionId', label: 'Requisition ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'requisitionId', label: 'Requisition', type: 'select', optionsUrl: 'requisitions', optionLabel: 'id', required: true },
       { name: 'postingTitle', label: 'Posting Title', required: true, full: true },
       { name: 'postingDescription', label: 'Description', type: 'textarea', full: true },
       { name: 'qualificationRequired', label: 'Qualification Required' },
@@ -811,9 +926,9 @@ export const Applications = () => (
       { key: 'shortlistedFlag', label: 'Shortlisted', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'applicantId', label: 'Applicant ID', required: true },
-      { name: 'requisitionId', label: 'Requisition ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'applicantId', label: 'Applicant', type: 'select', optionsUrl: 'applicants', optionLabel: 'firstName', required: true },
+      { name: 'requisitionId', label: 'Requisition', type: 'select', optionsUrl: 'requisitions', optionLabel: 'id', required: true },
       { name: 'applicationDate', label: 'Application Date', type: 'date', required: true },
       { name: 'applicationStatus', label: 'Status', type: 'select', options: ['Received', 'Screening', 'Shortlisted', 'Interview Scheduled', 'Offered', 'Rejected', 'Withdrawn'] },
       { name: 'screeningScore', label: 'Screening Score', type: 'number' },
@@ -835,11 +950,11 @@ export const Interviews = () => (
       { key: 'rating', label: 'Rating' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'applicationId', label: 'Application ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'applicationId', label: 'Application', type: 'select', optionsUrl: 'applications', optionLabel: 'id', required: true },
       { name: 'interviewRound', label: 'Interview Round', type: 'number', required: true },
       { name: 'interviewDate', label: 'Interview Date', type: 'date', required: true },
-      { name: 'interviewerPersonId', label: 'Interviewer Person ID', required: true },
+      { name: 'interviewerPersonId', label: 'Interviewer', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
       { name: 'interviewMode', label: 'Mode', type: 'select', options: ['In-Person', 'Video Call', 'Phone', 'Panel'] },
       { name: 'interviewStatus', label: 'Status', type: 'select', options: ['Scheduled', 'Completed', 'Cancelled', 'No Show'] },
       { name: 'rating', label: 'Rating (1–5)', type: 'number' },
@@ -861,14 +976,14 @@ export const OfferLetters = () => (
       { key: 'offerStatus', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'applicationId', label: 'Application ID', required: true },
-      { name: 'applicantId', label: 'Applicant ID', required: true },
-      { name: 'requisitionId', label: 'Requisition ID', required: true },
-      { name: 'positionId', label: 'Position ID', required: true },
-      { name: 'orgId', label: 'Org ID', required: true },
-      { name: 'proposedGradeId', label: 'Grade ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'applicationId', label: 'Application', type: 'select', optionsUrl: 'applications', optionLabel: 'id', required: true },
+      { name: 'applicantId', label: 'Applicant', type: 'select', optionsUrl: 'applicants', optionLabel: 'firstName', required: true },
+      { name: 'requisitionId', label: 'Requisition', type: 'select', optionsUrl: 'requisitions', optionLabel: 'id', required: true },
+      { name: 'positionId', label: 'Position', type: 'select', optionsUrl: 'positions', optionLabel: 'positionName', required: true },
+      { name: 'orgId', label: 'HR Org', type: 'select', optionsUrl: 'hr-organizations', optionLabel: 'orgName', required: true },
+      { name: 'proposedGradeId', label: 'Grade', type: 'select', optionsUrl: 'grades', optionLabel: 'gradeName', required: true },
       { name: 'offeredSalary', label: 'Offered Salary', type: 'number', required: true },
       { name: 'joiningBonus', label: 'Joining Bonus', type: 'number' },
       { name: 'offerDate', label: 'Offer Date', type: 'date', required: true },
@@ -917,11 +1032,11 @@ export const BenefitEnrollments = () => (
       { key: 'enrollmentStatus', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'planId', label: 'Plan ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'planId', label: 'Benefit Plan', type: 'select', optionsUrl: 'benefit-plans', optionLabel: 'planName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
       { name: 'enrollmentStatus', label: 'Status', type: 'select', options: ['Enrolled', 'Pending', 'Waived', 'Terminated'] },
     ]}
     defaultValues={{ enrollmentStatus: 'Enrolled', activeFlag: true }}
@@ -941,10 +1056,10 @@ export const Loans = () => (
       { key: 'loanStatus', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
       { name: 'loanType', label: 'Loan Type', type: 'select', options: ['SALARY_ADVANCE', 'PERSONAL_LOAN', 'HOME_LOAN', 'VEHICLE_LOAN'] },
       { name: 'loanAmount', label: 'Loan Amount', type: 'number', required: true },
       { name: 'interestRate', label: 'Interest Rate %', type: 'number' },
@@ -1021,10 +1136,10 @@ export const TrainingEnrollments = () => (
       { key: 'certificateIssued', label: 'Certificate', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'programId', label: 'Program ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'programId', label: 'Program', type: 'select', optionsUrl: 'training-programs', optionLabel: 'programName', required: true },
       { name: 'enrollmentDate', label: 'Enrollment Date', type: 'date', required: true },
       { name: 'completionDate', label: 'Completion Date', type: 'date' },
       { name: 'completionStatus', label: 'Status', type: 'select', options: ['Enrolled', 'In Progress', 'Completed', 'Dropped'] },
@@ -1049,12 +1164,12 @@ export const Appraisals = () => (
       { key: 'appraisalStatus', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
       { name: 'reviewPeriod', label: 'Review Period', required: true, placeholder: 'FY 2025-26' },
-      { name: 'reviewerPersonId', label: 'Reviewer Person ID', required: true },
+      { name: 'reviewerPersonId', label: 'Reviewer', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
       { name: 'overallRating', label: 'Overall Rating (1–5)', type: 'number' },
       { name: 'recommendation', label: 'Recommendation' },
       { name: 'appraisalStatus', label: 'Status', type: 'select', options: ['Draft', 'In Progress', 'Completed', 'Approved'] },
@@ -1077,17 +1192,17 @@ export const Separations = () => (
       { key: 'separationStatus', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
       { name: 'separationType', label: 'Type', type: 'select', options: ['RESIGNATION', 'TERMINATION', 'RETIREMENT', 'LAYOFF', 'DEATH'] },
       { name: 'reason', label: 'Reason', full: true },
       { name: 'resignationDate', label: 'Resignation Date', type: 'date' },
       { name: 'noticePeriodDays', label: 'Notice Period (days)', type: 'number' },
       { name: 'lastWorkingDate', label: 'Last Working Date', type: 'date' },
       { name: 'separationStatus', label: 'Status', type: 'select', options: ['Initiated', 'In Notice', 'Cleared', 'Completed'] },
-      { name: 'approvedByPersonId', label: 'Approved By (Person ID)' },
+      { name: 'approvedByPersonId', label: 'Approved By', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName' },
     ]}
     defaultValues={{ noticePeriodDays: 30, separationStatus: 'Initiated', activeFlag: true }}
   />
@@ -1105,10 +1220,10 @@ export const ExitChecklists = () => (
       { key: 'completionDate', label: 'Completed', render: (v) => v ? new Date(v).toLocaleDateString() : '—' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'separationId', label: 'Separation ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'separationId', label: 'Separation', type: 'select', optionsUrl: 'separations', optionLabel: 'id', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
       { name: 'checklistItem', label: 'Checklist Item', required: true },
       { name: 'department', label: 'Department' },
       { name: 'assignedTo', label: 'Assigned To' },
@@ -1132,11 +1247,11 @@ export const FinalSettlements = () => (
       { key: 'settlementStatus', label: 'Status' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
-      { name: 'separationId', label: 'Separation ID', required: true },
-      { name: 'personId', label: 'Person ID', required: true },
-      { name: 'assignmentId', label: 'Assignment ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
+      { name: 'separationId', label: 'Separation', type: 'select', optionsUrl: 'separations', optionLabel: 'id', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
       { name: 'pendingSalary', label: 'Pending Salary', type: 'number' },
       { name: 'leaveEncashmentDays', label: 'Leave Encash Days', type: 'number' },
       { name: 'leaveEncashmentAmount', label: 'Leave Encash Amount', type: 'number' },
@@ -1166,7 +1281,7 @@ export const SecurityRoles = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
       { name: 'roleCode', label: 'Role Code', required: true },
       { name: 'roleName', label: 'Role Name', required: true },
       { name: 'description', label: 'Description', type: 'textarea', full: true },
@@ -1187,8 +1302,8 @@ export const Users = () => (
     fields={[
       { name: 'email', label: 'Email', type: 'email', required: true },
       { name: 'passwordHash', label: 'Password', type: 'password', required: true },
-      { name: 'roleId', label: 'Role ID', required: true },
-      { name: 'personId', label: 'Person ID' },
+      { name: 'roleId', label: 'Role', type: 'select', optionsUrl: 'security-roles', optionLabel: 'roleName', required: true },
+      { name: 'personId', label: 'Person', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName' },
     ]}
     defaultValues={{ activeFlag: true }}
   />
@@ -1206,8 +1321,8 @@ export const AuditLogs = () => (
       { key: 'ipAddress', label: 'IP' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'userId', label: 'User ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'userId', label: 'User', type: 'select', optionsUrl: 'users', optionLabel: 'email', required: true },
       { name: 'tableName', label: 'Table Name', required: true },
       { name: 'recordId', label: 'Record ID', required: true },
       { name: 'action', label: 'Action', type: 'select', options: ['INSERT', 'UPDATE', 'DELETE'] },

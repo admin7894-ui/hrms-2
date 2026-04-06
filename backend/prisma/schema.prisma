@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/client_v2"
 }
 
 datasource db {
@@ -8,16 +9,18 @@ datasource db {
 }
 
 model Company {
-  id             String   @id @default(cuid()) @map("company_id")
-  companyName    String   @map("company_name")
-  primaryCurrency String  @map("primary_currency") @default("INR")
-  country        String
-  registrationNo String?  @map("registration_no")
-  activeFlag     Boolean  @default(true) @map("active_flag")
-  effectiveFrom  DateTime @default(now()) @map("effective_from")
-  effectiveTo    DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
-  createdBy      String   @default("SYSTEM") @map("created_by")
-  createdAt      DateTime @default(now()) @map("created_at")
+  id              String   @id @default(cuid()) @map("company_id")
+  companyName     String   @map("company_name")
+  primaryCurrency String   @default("INR") @map("primary_currency")
+  country         String   @map("country_name")
+  registrationNo  String?  @map("registration_no")
+
+  isActive        Boolean  @default(true) @map("is_active") // ✅ fixed
+
+  effectiveFrom   DateTime @default(now()) @map("effective_from")
+  effectiveTo     DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+  createdBy       String   @default("SYSTEM") @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
 
   locations          Location[]
   businessGroups     BusinessGroup[]
@@ -49,15 +52,21 @@ model Company {
 }
 
 model LocationType {
-  id               String   @id @default(cuid()) @map("location_type_id")
-  locationTypeName String   @map("location_type_name")
-  activeFlag       Boolean  @default(true) @map("active_flag")
-  effectiveFrom    DateTime @default(now()) @map("effective_from")
-  effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
-  createdBy        String   @default("SYSTEM") @map("created_by")
-  createdAt        DateTime @default(now()) @map("created_at")
+  id               String     @id @default(cuid()) @map("location_type_id")
+  companyId        String?    @map("company_id")
+  locationTypeCode String?    @map("location_type_code")
+  locationTypeName String     @map("location_type_name")
+  description      String?    @map("description")
 
-  locations Location[]
+ isActive        Boolean  @default(true) @map("is_active") 
+
+  effectiveFrom    DateTime   @default(now()) @map("effective_from")
+  effectiveTo      DateTime   @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
+
+  createdBy        String     @default("SYSTEM") @map("created_by")
+  createdAt        DateTime   @default(now()) @map("created_at")
+
+  locations        Location[]
 
   @@map("location_types")
 }
@@ -67,12 +76,12 @@ model Location {
   companyId      String       @map("company_id")
   locationTypeId String       @map("location_type_id")
   locationName   String       @map("location_name")
-  address1       String?
+  address1       String
   city           String?
   state          String?
   country        String?
   pincode        String?
-  activeFlag     Boolean      @default(true) @map("active_flag")
+  isActive       Boolean      @default(true) @map("is_active")  // ← changed
   effectiveFrom  DateTime     @default(now()) @map("effective_from")
   effectiveTo    DateTime     @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
   createdBy      String       @default("SYSTEM") @map("created_by")
@@ -98,7 +107,7 @@ model BusinessGroup {
   bgLocationId  String   @map("bg_location_id")
   bgName        String   @map("bg_name")
   currencyCode  String   @default("INR") @map("currency_code")
-  activeFlag    Boolean  @default(true) @map("active_flag")
+  isActive        Boolean  @default(true) @map("is_active") 
   effectiveFrom DateTime @default(now()) @map("effective_from")
   effectiveTo   DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
   createdBy     String   @default("SYSTEM") @map("created_by")
@@ -137,7 +146,7 @@ model BusinessType {
   companyId        String   @map("company_id")
   businessTypeName String   @map("business_type_name")
   description      String?
-  activeFlag       Boolean  @default(true) @map("active_flag")
+  isActive        Boolean  @default(true) @map("is_active") 
   effectiveFrom    DateTime @default(now()) @map("effective_from")
   effectiveTo      DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
   createdBy        String   @default("SYSTEM") @map("created_by")
@@ -162,7 +171,7 @@ model LegalEntity {
   leName            String   @map("le_name")
   taxRegistrationNo String?  @map("tax_registration_no")
   functionalCurrency String  @default("INR") @map("functional_currency")
-  activeFlag        Boolean  @default(true) @map("active_flag")
+  isActive        Boolean  @default(true) @map("is_active") 
   effectiveFrom     DateTime @default(now()) @map("effective_from")
   effectiveTo       DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
   createdBy         String   @default("SYSTEM") @map("created_by")
@@ -190,7 +199,7 @@ model OperatingUnit {
   ouShortCode    String?  @map("ou_short_code")
   locationId     String   @map("location_id")
   currencyCode   String   @default("INR") @map("currency_code")
-  activeFlag     Boolean  @default(true) @map("active_flag")
+  isActive        Boolean  @default(true) @map("is_active") 
   effectiveFrom  DateTime @default(now()) @map("effective_from")
   effectiveTo    DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
   createdBy      String   @default("SYSTEM") @map("created_by")
@@ -241,7 +250,7 @@ model HrOrganization {
   locationId     String   @map("location_id")
   orgType        String?  @map("org_type")
   parentOrgId    String?  @map("parent_org_id")
-  activeFlag     Boolean  @default(true) @map("active_flag")
+  isActive        Boolean  @default(true) @map("is_active") 
   effectiveFrom  DateTime @default(now()) @map("effective_from")
   effectiveTo    DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
   createdBy      String   @default("SYSTEM") @map("created_by")
@@ -1629,4 +1638,55 @@ model FinalSettlement {
   assignment Assignment @relation(fields: [assignmentId], references: [id])
 
   @@map("final_settlements")
+}
+
+model StateMaster {
+  id          Int      @id @default(autoincrement()) @map("state_id")
+  stateCode   String   @unique @map("state_code")
+  stateName   String   @map("state_name")
+  countryId   Int      @map("country_id")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  country     CountryMaster @relation(fields: [countryId], references: [id])
+  cities      CityMaster[]
+
+  @@unique([stateName, countryId])
+  @@map("state_master")
+}
+
+model CityMaster {
+  id          Int      @id @default(autoincrement()) @map("city_id")
+  cityCode    String   @unique @map("city_code")
+  cityName    String   @map("city_name")
+  stateId     Int      @map("state_id")
+  countryId   Int      @map("country_id")
+  isActive    Boolean  @default(true) @map("is_active")
+  pincode     String   @map("pincode")
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  state       StateMaster   @relation(fields: [stateId], references: [id])
+  country     CountryMaster @relation(fields: [countryId], references: [id])
+
+  @@unique([cityName, stateId])
+  @@map("city_master")
+}
+
+model CountryMaster {
+  id          Int      @id @default(autoincrement()) @map("country_id")
+  countryCode String   @unique @map("country_code")
+  countryName String   @unique @map("country_name")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  states      StateMaster[]
+  cities      CityMaster[]
+
+  @@map("country_master")
 }

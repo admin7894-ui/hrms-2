@@ -10,8 +10,15 @@ const navGroups = [
   {
     label: 'Organization',
     items: [
+      { to: '/countries', label: '🌍 Countries' },
+      { to: '/states', label: '🗺️ States' },
+      { to: '/cities', label: '🏙️ Cities' },
+      { to: '/location-types', label: '📍Location Types' },
       { to: '/companies', label: '🏢 Companies' },
+   
       { to: '/locations', label: '📍 Locations' },
+
+      { to: '/business-types', label: '🌐 Business Types' },
       { to: '/business-groups', label: '🌐 Business Groups' },
       { to: '/legal-entities', label: '⚖️ Legal Entities' },
       { to: '/operating-units', label: '🏭 Operating Units' },
@@ -113,7 +120,7 @@ const Sidebar = () => {
       <div className="px-5 py-5 border-b border-gray-700">
         <div className="text-xl font-bold text-white">🏢 HRMS</div>
         <div className="text-xs text-gray-400 mt-1">{user?.email}</div>
-        <div className="text-xs text-indigo-400 font-medium">{user?.role}</div>
+        <div className="text-xs text-indigo-400 font-medium">{user?.role?.roleName || user?.role || 'Guest'}</div>
       </div>
 
       <nav className="flex-1 py-4 space-y-1 px-2">
@@ -133,10 +140,9 @@ const Sidebar = () => {
                     key={item.to}
                     to={item.to}
                     className={({ isActive }) =>
-                      `block px-3 py-1.5 rounded-lg text-sm transition ${
-                        isActive
-                          ? 'bg-indigo-600 text-white font-medium'
-                          : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      `block px-3 py-1.5 rounded-lg text-sm transition ${isActive
+                        ? 'bg-indigo-600 text-white font-medium'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                       }`
                     }
                     end={item.to === '/'}

@@ -25,7 +25,7 @@
     "prisma": "^5.9.0"
   },
   "prisma": {
-    "schema": "../prisma/schema.prisma",
-    "seed": "node ../prisma/seed.js"
+    "schema": "prisma/schema.prisma",
+    "seed": "node prisma/seed.js"
   }
 }

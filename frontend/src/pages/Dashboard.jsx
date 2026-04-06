@@ -28,7 +28,7 @@ const Dashboard = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-800">Welcome back 👋</h1>
-        <p className="text-gray-500 mt-1">{user?.email} · {user?.role}</p>
+        <p className="text-gray-500 mt-1">{user?.email} · {user?.role?.roleName || user?.role || 'Guest'}</p>
       </div>
 
       {loading ? (
