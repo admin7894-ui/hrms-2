@@ -9,6 +9,8 @@ const countryController = require('../controllers/countryController');
 const stateController = require('../controllers/stateController');
 const cityController = require('../controllers/cityController');
 const { validate } = require('../middleware/validate');
+
+
 // Auth routes
 router.post('/auth/login', authController.login);
 router.post('/auth/register', authController.register);
@@ -82,7 +84,13 @@ makeRoutes('jobs', 'job', { company: true, businessGroup: true });
 makeRoutes('positions', 'position', { job: true, org: true, grade: true, location: true });
 
 // Person Management
-makeRoutes('persons', 'person', { company: true, businessGroup: true });
+const personCtrl = crudController('person', { company: true, businessGroup: true });
+router.get('/persons', authenticate, personCtrl.getAll);
+router.get('/persons/:id', authenticate, personCtrl.getById);
+router.post('/persons', authenticate, validate, personCtrl.create);
+router.put('/persons/:id', authenticate,validate,personCtrl.update);
+router.delete('/persons/:id', authenticate, personCtrl.remove);
+
 makeRoutes('person-documents', 'personDocument', { person: true });
 makeRoutes('person-competences', 'personCompetence', { person: true, competence: true });
 makeRoutes('person-history', 'personHistory', { person: true, assignment: true });
