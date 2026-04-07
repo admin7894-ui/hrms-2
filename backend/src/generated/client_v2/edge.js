@@ -1336,7 +1336,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\reactprojects\\hrms-2\\backend\\src\\generated\\client_v2",
+      "value": "C:\\React\\hrms-2\\backend\\src\\generated\\client_v2",
       "fromEnvVar": null
     },
     "config": {
@@ -1350,11 +1350,12 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\reactprojects\\hrms-2\\backend\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\React\\hrms-2\\backend\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
   "clientVersion": "5.22.0",
@@ -1363,6 +1364,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
