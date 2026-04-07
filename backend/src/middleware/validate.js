@@ -27,7 +27,7 @@ const FIELD_RULES = {
   taxRegistrationNo: {
     min: 5,
     max: 30,
-    regex: /^[a-zA-Z0-9-]+$/,
+    regex: /^[a-zA-Z0-9-]+$/, 
     label: 'Tax Registration No'
   },
   ouName: { min: 2, max: 100, regex: /^[a-zA-Z\s]+$/, label: 'Operating Unit Name' },
