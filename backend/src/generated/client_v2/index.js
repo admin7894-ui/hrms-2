@@ -1364,10 +1364,8 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-<<<<<<< HEAD
+
   "postinstall": true,
-=======
->>>>>>> 42353625ce2e52708b7c04848dbdf41d23c16b2a
   "inlineDatasources": {
     "db": {
       "url": {
