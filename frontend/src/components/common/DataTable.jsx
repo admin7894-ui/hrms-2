@@ -16,7 +16,9 @@ const Toggle = ({ enabled, onChange }) => (
   </button>
 );
 
-const DataTable = ({ columns, data, loading, onEdit, onDelete, onToggle }) => {
+const DataTable = ({ columns, data, loading, onEdit, onDelete, onToggle, onView }) => {
+  console.log("this is the person data ",data);
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center h-48">
@@ -35,7 +37,7 @@ const DataTable = ({ columns, data, loading, onEdit, onDelete, onToggle }) => {
                 {col.label}
               </th>
             ))}
-            {(onEdit || onDelete) && (
+            {(onView || onEdit || onDelete) && (
               <th className="px-4 py-4 text-right text-[10px] font-bold text-gray-500 uppercase">Actions</th>
             )}
           </tr>
@@ -61,8 +63,16 @@ const DataTable = ({ columns, data, loading, onEdit, onDelete, onToggle }) => {
                     )}
                   </td>
                 ))}
-                {(onEdit || onDelete) && (
+                {(onView || onEdit || onDelete) && (
                   <td className="px-4 py-3.5 text-right space-x-1 whitespace-nowrap">
+                    {onView && (
+                      <button
+                        onClick={() => onView(row)}
+                        className="text-blue-600 hover:text-blue-700 font-bold text-[11px] px-2.5 py-1.5 rounded-md hover:bg-blue-100/50 transition-all active:scale-95"
+                      >
+                        View
+                      </button>
+                    )}
                     {onEdit && (
                       <button
                         onClick={() => onEdit(row)}

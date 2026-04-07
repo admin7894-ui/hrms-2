@@ -1,31 +1,31 @@
 const prisma = require('../config/prisma');
 
-// ─── Fields to always strip before create/update ─────────────────────────────
-// These are either relation objects, auto-generated, or read-only fields
 const STRIP_FIELDS = [
   'id', 'createdAt', 'updatedAt', 'effectiveFrom', 'effectiveTo', 'createdBy',
 ];
 
-/**
- * Sanitize request body before sending to Prisma:
- * - Remove nested relation objects (e.g. { company: {...} })
- * - Remove read-only / auto-generated fields
- * - Keep foreign key IDs (e.g. companyId, roleId)
- */
 function sanitizeData(body) {
   const clean = {};
+  const DATE_FIELDS = ['dateOfBirth', 'hireDate', 'startDate', 'endDate', 'terminationDate'];
+
   for (const [key, value] of Object.entries(body)) {
-    // Skip read-only fields
     if (STRIP_FIELDS.includes(key)) continue;
 
-    // Skip nested relation objects (objects that aren't null and aren't Date)
     if (
       value !== null &&
       typeof value === 'object' &&
       !Array.isArray(value) &&
       !(value instanceof Date)
     ) {
-      continue; // skip nested objects like company: {...}, locationType: {...}
+      continue;
+    }
+
+    if (DATE_FIELDS.includes(key) && value) {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        clean[key] = date.toISOString();
+        continue;
+      }
     }
 
     clean[key] = value;
@@ -86,10 +86,9 @@ const crudController = (model, includeRelations = {}) => ({
       });
       res.status(201).json(record);
     } catch (err) {
-      // ✅ Prisma validation error — missing required fields etc.
       if (err.code === 'P2002') {
         return res.status(409).json({
-          error: `A record with this value already exists.`,
+          error: 'A record with this value already exists.',
           code: 'DUPLICATE_ENTRY',
         });
       }
@@ -103,56 +102,65 @@ const crudController = (model, includeRelations = {}) => ({
     }
   },
 
-update: async (req, res, next) => {
-  try {
-    const data = sanitizeData(req.body);
+  // ✅ Fixed: uses includeRelations instead of hardcoded include
+  update: async (req, res, next) => {
+    try {
+      const data = sanitizeData(req.body);
 
-    // Map raw FK fields to Prisma nested connect syntax
-    const relationMap = {
-      companyId:      'company',
-      bgId:           'businessGroup',
-      leId:           'legalEntity',
-      businessTypeId: 'businessType',
-      locationId:     'location',
-      parentOrgId:    'parentOrg',
-    };
+      const relationMap = {
+        companyId:      'company',
+        bgId:           'businessGroup',
+        leId:           'legalEntity',
+        businessTypeId: 'businessType',
+        locationId:     'location',
+        parentOrgId:    'parentOrg',
+      };
 
-    const prismaData = {};
+      const prismaData = {};
 
-    for (const [key, value] of Object.entries(data)) {
-      if (relationMap[key]) {
-        // Skip null parentOrgId (optional relation)
-        if (value !== null && value !== undefined) {
-          prismaData[relationMap[key]] = { connect: { id: value } };
-        } else if (key === 'parentOrgId') {
-          // Disconnect if null
-          prismaData[relationMap[key]] = { disconnect: true };
+      for (const [key, value] of Object.entries(data)) {
+        if (relationMap[key]) {
+          if (value !== null && value !== undefined) {
+            prismaData[relationMap[key]] = { connect: { id: value } };
+          } else if (key === 'parentOrgId') {
+            prismaData[relationMap[key]] = { disconnect: true };
+          }
+        } else {
+          prismaData[key] = value;
         }
-      } else {
-        prismaData[key] = value;
       }
+
+      delete prismaData.parentOrg;
+
+      const record = await prisma[model].update({
+        where: { id: req.params.id },
+        data: prismaData,
+        include: includeRelations, // ✅ Fixed — no longer hardcoded
+      });
+
+      res.json(record);
+    } catch (err) {
+      if (err.code === 'P2002') {
+        return res.status(409).json({
+          error: 'A record with this value already exists.',
+          code: 'DUPLICATE_ENTRY',
+        });
+      }
+      if (err.code === 'P2025') {
+        return res.status(404).json({
+          error: 'Record not found.',
+          code: 'NOT_FOUND',
+        });
+      }
+      if (err.name === 'PrismaClientValidationError') {
+        return res.status(400).json({
+          error: 'Invalid data provided. Please check all required fields.',
+          detail: err.message,
+        });
+      }
+      next(err);
     }
-
-    // Remove any leftover raw relation objects sanitizeData may have missed
-    delete prismaData.parentOrg;
-
-    const record = await prisma[model].update({
-      where: { id: req.params.id },
-      data: prismaData,
-      include: {
-        company: true,
-        businessGroup: true,
-        legalEntity: true,
-        location: true,
-        parentOrg: true,
-      },
-    });
-
-    res.json(record);
-  } catch (error) {
-    next(error);
-  }
-},
+  },
 
   remove: async (req, res, next) => {
     try {

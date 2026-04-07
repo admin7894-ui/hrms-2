@@ -231,8 +231,8 @@ export const OperatingUnits = () => (
       { name: 'leId', label: 'Legal Entity', type: 'select', optionsUrl: 'legal-entities', optionLabel: 'leName', required: true },
       { name: 'businessTypeId', label: 'Business Type', type: 'select', optionsUrl: 'business-types', optionLabel: 'businessTypeName', required: true },
       { name: 'locationId', label: 'Location', type: 'select', optionsUrl: 'locations', optionLabel: 'locationName', required: true },
-      { name: 'ouName', label: 'OU Name', required: true },
-      { name: 'ouShortCode', label: 'Short Code' },
+      { name: 'ouName', label: 'OU Name', required: true, generateShortCodeFor: 'ouShortCode' },
+      { name: 'ouShortCode', label: 'Short Code', readOnly: true },
       { name: 'currencyCode', label: 'Currency', type: 'select', options: ['INR', 'USD', 'EUR'] },
     ]}
     defaultValues={{ currencyCode: 'INR', isActive: true }}
@@ -255,8 +255,8 @@ export const HrOrganizations = () => (
       { name: 'leId', label: 'Legal Entity', type: 'select', optionsUrl: 'legal-entities', optionLabel: 'leName', required: true },
       { name: 'businessTypeId', label: 'Business Type', type: 'select', optionsUrl: 'business-types', optionLabel: 'businessTypeName', required: true },
       { name: 'locationId', label: 'Location', type: 'select', optionsUrl: 'locations', optionLabel: 'locationName', required: true },
-      { name: 'orgName', label: 'Org Name', required: true },
-      { name: 'orgCode', label: 'Org Code', required: true },
+      { name: 'orgName', label: 'Org Name', required: true, generateShortCodeFor: 'orgCode' },
+      { name: 'orgCode', label: 'Org Code', required: true, readOnly: true },
       { name: 'orgType', label: 'Org Type', type: 'select', options: ['Department', 'Division', 'Team', 'Unit'] },
       { name: 'parentOrgId', label: 'Parent Org', type: 'select', optionsUrl: 'hr-organizations', optionLabel: 'orgName' },
     ]}
@@ -276,30 +276,23 @@ export const Persons = () => (
       { key: 'gender', label: 'Gender' },
       { key: 'personType', label: 'Type' },
       { key: 'hireDate', label: 'Hire Date', render: (v) => v ? new Date(v).toLocaleDateString() : '—' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
-      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
-      { name: 'personType', label: 'Person Type', type: 'select', options: ['EMP', 'CONTRACTOR', 'CONSULTANT'] },
-      { name: 'firstName', label: 'First Name', required: true },
-      { name: 'middleName', label: 'Middle Name' },
-      { name: 'lastName', label: 'Last Name', required: true },
-      { name: 'dateOfBirth', label: 'Date of Birth', type: 'date' },
-      { name: 'gender', label: 'Gender', type: 'select', options: ['M', 'F', 'Other'] },
-      {
-        name: 'nationality',
-        label: 'Nationality',
-        type: 'select',
-        optionsUrl: 'country-master',
-        optionLabel: 'countryName',
-        optionValue: 'countryName',
-      },
-      { name: 'nationalId', label: 'National ID (PAN)' },
-      { name: 'email', label: 'Email', type: 'email', required: true },
-      { name: 'hireDate', label: 'Hire Date', type: 'date' },
-      { name: 'phoneNumber', label: 'Phone' },
-      { name: 'addressLine1', label: 'Address', full: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true, tab: 'Employee Details' },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true, tab: 'Employee Details' },
+      { name: 'personType', label: 'Person Type', type: 'select', options: ['EMP', 'CONTRACTOR', 'CONSULTANT'], tab: 'Employee Details' },
+      { name: 'firstName', label: 'First Name', required: true, tab: 'Employee Details' },
+      { name: 'middleName', label: 'Middle Name', tab: 'Employee Details' },
+      { name: 'lastName', label: 'Last Name', required: true, tab: 'Employee Details' },
+      { name: 'dateOfBirth', label: 'Date of Birth', type: 'date', tab: 'Employee Details' },
+      { name: 'gender', label: 'Gender', type: 'select', options: ['M', 'F', 'Other'], tab: 'Employee Details' },
+      { name: 'nationality', label: 'Nationality', readOnly: true, tab: 'Employee Details' },
+      { name: 'nationalId', label: 'National ID (PAN)', tab: 'Employee Details',required: true },
+      { name: 'email', label: 'Email', type: 'email', required: true, tab: 'Employee Details' },
+      { name: 'hireDate', label: 'Hire Date', type: 'date', tab: 'Employee Details' },
+      { name: 'phoneNumber', label: 'Phone', required: true, tab: 'Employee Details' },
+      { name: 'addressLine1', label: 'Address', full: true, required: true, tab: 'Employee Details' },
       {
         name: 'city',
         label: 'City',
@@ -307,6 +300,8 @@ export const Persons = () => (
         optionsUrl: 'city-master',
         optionLabel: 'cityName',
         optionValue: 'cityName',
+        required: true,
+        tab: 'Employee Details',
         trigger: {
           url: 'location/city',
           params: (val) => ({ name: val }),
@@ -317,19 +312,51 @@ export const Persons = () => (
           }
         }
       },
-      { name: 'state', label: 'State', readOnly: true },
-      { name: 'country', label: 'Country', readOnly: true },
-      { name: 'pincode', label: 'Pincode', readOnly: true },
-      { name: 'emergencyName', label: 'Emergency Contact' },
-      { name: 'emergencyPhone', label: 'Emergency Phone' },
+      { name: 'state', label: 'State', readOnly: true, required: true, tab: 'Employee Details' },
+      { name: 'country', label: 'Country', readOnly: true, required: true, tab: 'Employee Details' },
+      { name: 'pincode', label: 'Pincode', readOnly: true, required: true, tab: 'Employee Details' },
+      
+      // Emergency Tab
+      { name: 'emergencyName', label: 'Emergency Name', required: true, tab: 'Emergency' },
       {
         name: 'emergencyRelationship',
         label: 'Relationship',
         type: 'select',
-        options: ['Spouse', 'Parent', 'Sibling', 'Child', 'Friend', 'Other'],
+        options: ['Father', 'Mother', 'Spouse', 'Brother', 'Sister', 'Friend', 'Other'],
+        required: true,
+        tab: 'Emergency'
       },
+      { name: 'emergencyPhone', label: 'Emergency Phone', required: true, tab: 'Emergency' },
+      { name: 'emergencyAddress', label: 'Emergency Address', full: true, required: true, tab: 'Emergency' },
+      { name: 'emergencyPriority', label: 'Priority', type: 'number', required: true, tab: 'Emergency' },
     ]}
-    defaultValues={{ personType: 'EMP', gender: 'M', activeFlag: true }}
+    defaultValues={{ 
+      personType: 'EMP', 
+      gender: 'M', 
+      isActive: true, 
+      nationality: 'Indian', 
+      country: 'India',
+      emergencyPriority: 1
+    }}
+    transformPayload={(form) => {
+      // Build the nested structure requested by the backend validation
+      const payload = { ...form };
+      
+      // `validate.js` on the backend explicitly reads `req.body.emergency.emergency_name` 
+      // and `req.body.emergency.emergency_relationship`
+      if (payload.emergencyName || payload.emergencyRelationship) {
+        payload.emergency = {
+          emergency_name: payload.emergencyName,
+          emergency_relationship: payload.emergencyRelationship,
+        };
+      }
+      
+      // Note: emergencyPhone, emergencyAddress, and emergencyPriority are sent flat 
+      // because `validate.js` and `crudController.js` either validate them at root or 
+      // insert them directly into Prisma as root fields.
+
+      return payload;
+    }}
   />
 );
 
@@ -342,7 +369,7 @@ export const Grades = () => (
       { key: 'gradeName', label: 'Grade Name' },
       { key: 'minSalary', label: 'Min Salary', render: (v) => `₹${Number(v).toLocaleString()}` },
       { key: 'maxSalary', label: 'Max Salary', render: (v) => `₹${Number(v).toLocaleString()}` },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
       { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
@@ -352,7 +379,7 @@ export const Grades = () => (
       { name: 'minSalary', label: 'Min Salary', type: 'number' },
       { name: 'maxSalary', label: 'Max Salary', type: 'number' },
     ]}
-    defaultValues={{ activeFlag: true }}
+    defaultValues={{ isActive: true }}
   />
 );
 
@@ -384,7 +411,7 @@ export const GradeLadders = () => (
       { key: 'ladderName', label: 'Ladder Name' },
       { key: 'sequence', label: 'Sequence' },
       { key: 'minYearsInGrade', label: 'Min Years' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
       { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
@@ -395,7 +422,7 @@ export const GradeLadders = () => (
       { name: 'sequence', label: 'Sequence', type: 'number' },
       { name: 'minYearsInGrade', label: 'Min Years in Grade', type: 'number' },
     ]}
-    defaultValues={{ activeFlag: true }}
+    defaultValues={{ isActive: true }}
   />
 );
 
@@ -407,7 +434,7 @@ export const Jobs = () => (
       { key: 'jobCode', label: 'Code' },
       { key: 'jobName', label: 'Job Name' },
       { key: 'jobFamily', label: 'Family' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
       { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
@@ -417,7 +444,7 @@ export const Jobs = () => (
       { name: 'jobFamily', label: 'Job Family' },
       { name: 'description', label: 'Description', type: 'textarea', full: true },
     ]}
-    defaultValues={{ activeFlag: true }}
+    defaultValues={{ isActive: true }}
   />
 );
 
@@ -428,7 +455,7 @@ export const Positions = () => (
     columns={[
       { key: 'positionName', label: 'Position' },
       { key: 'headcount', label: 'Headcount' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+      { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
       { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
@@ -440,7 +467,7 @@ export const Positions = () => (
       { name: 'positionName', label: 'Position Name', required: true },
       { name: 'headcount', label: 'Headcount', type: 'number' },
     ]}
-    defaultValues={{ headcount: 1, activeFlag: true }}
+    defaultValues={{ headcount: 1, isActive: true }}
   />
 );
 
@@ -529,17 +556,17 @@ export const AssignmentStatusTypes = () => (
     columns={[
       { key: 'statusCode', label: 'Code' },
       { key: 'statusName', label: 'Status Name' },
-      { key: 'userStatus', label: 'User Status' },
-      { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
+     
+     { key: 'isActive', label: 'Active', type: 'toggle' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
       { name: 'statusCode', label: 'Status Code', required: true },
       { name: 'statusName', label: 'Status Name', required: true },
-      { name: 'userStatus', label: 'User Status' },
-      { name: 'systemStatus', label: 'System Status' },
+      // { name: 'userStatus', label: 'User Status' },
+      // { name: 'systemStatus', label: 'System Status' },
     ]}
-    defaultValues={{ activeFlag: true }}
+    defaultValues={{ isActive: true }}
   />
 );
 

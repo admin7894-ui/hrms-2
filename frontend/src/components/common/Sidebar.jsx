@@ -29,6 +29,7 @@ const navGroups = [
     label: 'HR Core',
     items: [
       { to: '/persons', label: '👤 Employees' },
+        { to: '/assignment-status-types', label: '📋 Assignment Status Types' },
       { to: '/assignments', label: '📋 Assignments' },
       { to: '/positions', label: '💼 Positions' },
       { to: '/jobs', label: '🔖 Jobs' },
