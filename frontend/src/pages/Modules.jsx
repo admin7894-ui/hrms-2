@@ -188,7 +188,7 @@ export const BusinessTypes = () => (
       { name: 'businessTypeName', label: 'Type Name', required: true },
       { name: 'description', label: 'Description', type: 'textarea', full: true },
     ]}
-    defaultValues={{ activeFlag: true }}
+    defaultValues={{ isActive: true }}
   />
 );
 
@@ -211,7 +211,7 @@ export const LegalEntities = () => (
       { name: 'taxRegistrationNo', label: 'Tax Registration No' },
       { name: 'functionalCurrency', label: 'Currency', type: 'select', options: ['INR', 'USD', 'EUR'] },
     ]}
-    defaultValues={{ functionalCurrency: 'INR', activeFlag: true }}
+    defaultValues={{ functionalCurrency: 'INR', isActive: true }}
   />
 );
 
@@ -510,9 +510,10 @@ export const Supervisors = () => (
     fields={[
       { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
       { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
-      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
+      { name: 'personId', label: 'Employee', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
+      { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', dependsOn: 'personId', required: true },
       { name: 'supervisorPersonId', label: 'Supervisor', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
-      { name: 'supervisorAssignmentId', label: 'Supervisor Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
+      { name: 'supervisorAssignmentId', label: 'Supervisor Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', dependsOn: 'supervisorPersonId', dependsOnParam: 'personId', required: true },
     ]}
     defaultValues={{ activeFlag: true }}
   />
@@ -769,7 +770,15 @@ export const Absences = () => (
       { name: 'endDate', label: 'End Date', type: 'date', required: true },
       { name: 'days', label: 'Number of Days', type: 'number', required: true },
       { name: 'status', label: 'Status', type: 'select', options: ['Pending', 'Approved', 'Rejected', 'Cancelled'] },
-      { name: 'approvedByPersonId', label: 'Approved By (Person ID)' },
+      // ✅ Changed from text input to person dropdown
+      { 
+        name: 'approvedByPersonId', 
+        label: 'Approved By', 
+        type: 'select', 
+        optionsUrl: 'persons', 
+        optionLabel: 'firstName',
+        optionValue: 'id',
+      },
     ]}
     defaultValues={{ days: 1, status: 'Pending', activeFlag: true }}
   />
@@ -817,12 +826,22 @@ export const WorkSchedules = () => (
       { key: 'applicableDays', label: 'Days' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+     { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+       { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'scheduleCode', label: 'Schedule Code', required: true },
       { name: 'scheduleName', label: 'Schedule Name', required: true },
-      { name: 'shiftStart', label: 'Shift Start (HH:MM)', required: true, placeholder: '09:00' },
-      { name: 'shiftEnd', label: 'Shift End (HH:MM)', required: true, placeholder: '18:00' },
+      {
+  name: 'shiftStart',
+  label: 'Shift Start',
+  type: 'time',   // ✅ this enables clock/time picker
+  required: true
+},
+{
+  name: 'shiftEnd',
+  label: 'Shift End',
+  type: 'time',   // ✅ this enables clock/time picker
+  required: true
+},
       { name: 'breakMinutes', label: 'Break (minutes)', type: 'number' },
       { name: 'workingHours', label: 'Working Hours', type: 'number' },
       { name: 'applicableDays', label: 'Applicable Days', placeholder: 'Mon-Sat' },
@@ -910,7 +929,7 @@ export const JobPostings = () => (
       { name: 'closingDate', label: 'Closing Date', type: 'date', required: true },
       { name: 'postingStatus', label: 'Status', type: 'select', options: ['Draft', 'Active', 'Closed', 'Cancelled'] },
     ]}
-    defaultValues={{ postingStatus: 'Active', activeFlag: true }}
+    defaultValues={{ postingStatus: 'Active', isActive: true }}
   />
 );
 
@@ -927,8 +946,9 @@ export const Applicants = () => (
       { key: 'currentDesignation', label: 'Current Role' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
       { name: 'firstName', label: 'First Name', required: true },
+       { name: 'middleName', label: 'Middle Name',required: true},
       { name: 'lastName', label: 'Last Name', required: true },
       { name: 'email', label: 'Email', type: 'email', required: true },
       { name: 'phone', label: 'Phone' },
@@ -984,7 +1004,7 @@ export const Interviews = () => (
       { name: 'interviewerPersonId', label: 'Interviewer', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
       { name: 'interviewMode', label: 'Mode', type: 'select', options: ['In-Person', 'Video Call', 'Phone', 'Panel'] },
       { name: 'interviewStatus', label: 'Status', type: 'select', options: ['Scheduled', 'Completed', 'Cancelled', 'No Show'] },
-      { name: 'rating', label: 'Rating (1–5)', type: 'number' },
+      { name: 'rating', label: 'Rating (1–5)', type: 'number', min: 1, max: 5, step: 1 },
       { name: 'feedback', label: 'Feedback', type: 'textarea', full: true },
     ]}
     defaultValues={{ interviewRound: 1, interviewStatus: 'Scheduled', interviewMode: 'In-Person', activeFlag: true }}
@@ -1037,8 +1057,8 @@ export const BenefitPlans = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'planCode', label: 'Plan Code', required: true },
       { name: 'planName', label: 'Plan Name', required: true },
       { name: 'planType', label: 'Plan Type', type: 'select', options: ['Insurance', 'Retirement', 'Health', 'Other'] },
@@ -1113,8 +1133,8 @@ export const Competences = () => (
       { key: 'activeFlag', label: 'Active', render: (v) => v ? '✅' : '❌' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company ID', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'competenceCode', label: 'Code', required: true },
       { name: 'competenceName', label: 'Name', required: true },
       { name: 'competenceType', label: 'Type', type: 'select', options: ['Technical', 'Behavioral', 'Leadership', 'Functional'] },
@@ -1137,8 +1157,8 @@ export const TrainingPrograms = () => (
       { key: 'deliveryMode', label: 'Mode' },
     ]}
     fields={[
-      { name: 'companyId', label: 'Company ID', required: true },
-      { name: 'bgId', label: 'Business Group ID', required: true },
+      { name: 'companyId', label: 'Company ID', type: 'select', optionsUrl: 'companies', optionLabel: 'companyName', required: true },
+      { name: 'bgId', label: 'Business Group', type: 'select', optionsUrl: 'business-groups', optionLabel: 'bgName', required: true },
       { name: 'programCode', label: 'Program Code', required: true },
       { name: 'programName', label: 'Program Name', required: true },
       { name: 'provider', label: 'Provider' },
@@ -1197,7 +1217,7 @@ export const Appraisals = () => (
       { name: 'assignmentId', label: 'Assignment', type: 'select', optionsUrl: 'assignments', optionLabel: 'id', required: true },
       { name: 'reviewPeriod', label: 'Review Period', required: true, placeholder: 'FY 2025-26' },
       { name: 'reviewerPersonId', label: 'Reviewer', type: 'select', optionsUrl: 'persons', optionLabel: 'firstName', required: true },
-      { name: 'overallRating', label: 'Overall Rating (1–5)', type: 'number' },
+      { name: 'overallRating', label: 'Overall Rating (1–5)', type: 'number', min: 1, max: 5, step: 1 },
       { name: 'recommendation', label: 'Recommendation' },
       { name: 'appraisalStatus', label: 'Status', type: 'select', options: ['Draft', 'In Progress', 'Completed', 'Approved'] },
     ]}

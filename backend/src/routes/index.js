@@ -10,7 +10,6 @@ const stateController = require('../controllers/stateController');
 const cityController = require('../controllers/cityController');
 const { validate } = require('../middleware/validate');
 
-
 // Auth routes
 router.post('/auth/login', authController.login);
 router.post('/auth/register', authController.register);
@@ -40,127 +39,470 @@ router.post('/city-master', authenticate, cityController.create);
 router.put('/city-master/:id', authenticate, cityController.update);
 router.delete('/city-master/:id', authenticate, cityController.remove);
 
-// Generic CRUD route builder
-const makeRoutes = (path, model, relations = {}) => {
-  const ctrl = crudController(model, relations);
+// ✅ UPDATED Generic CRUD route builder
+const makeRoutes = (path, model, relations = {}, relationMap = {}) => {
+  const ctrl = crudController(model, relations, relationMap);
+
   router.get(`/${path}`, authenticate, ctrl.getAll);
   router.get(`/${path}/:id`, authenticate, ctrl.getById);
-  router.post(`/${path}`, authenticate, validate, ctrl.create);      // ✅ validate added
+  router.post(`/${path}`, authenticate, validate, ctrl.create);
   router.put(`/${path}/:id`, authenticate, validate, ctrl.update);
   router.delete(`/${path}/:id`, authenticate, ctrl.remove);
 };
 
 // Organization Structure
 makeRoutes('companies', 'company');
-// Location Types (custom - auto-generates locationTypeCode)
+
+// Location Types (custom)
 const locationTypeController = require('../controllers/locationTypeController');
 router.get('/location-types', authenticate, locationTypeController.getAll);
 router.post('/location-types', authenticate, locationTypeController.create);
 router.put('/location-types/:id', authenticate, locationTypeController.update);
 router.delete('/location-types/:id', authenticate, locationTypeController.remove);
 
+// Locations
+makeRoutes(
+  'locations',
+  'location',
+  { company: true, locationType: true },
+  {
+    companyId: 'company',
+    locationTypeId: 'locationType',
+  }
+);
 
-router.get('/locations', authenticate, crudController('location', { company: true, locationType: true }).getAll);
-router.get('/locations/:id', authenticate, crudController('location', { company: true, locationType: true }).getById);
-router.post('/locations', authenticate, validate, crudController('location', { company: true, locationType: true }).create);
-router.put('/locations/:id', authenticate, validate, crudController('location', { company: true, locationType: true }).update);
-router.delete('/locations/:id', authenticate, crudController('location', { company: true, locationType: true }).remove);
+// Business Structure
+makeRoutes('business-groups', 'businessGroup', { company: true, location: true }, {
+  companyId: 'company',
+  locationId: 'location',
+});
+
+makeRoutes('business-types', 'businessType', { company: true }, {
+  companyId: 'company',
+});
+
+makeRoutes('legal-entities', 'legalEntity',
+  { company: true, businessGroup: true, businessType: true, location: true },
+  {
+    companyId: 'company',
+    bgId: 'businessGroup',
+    businessTypeId: 'businessType',
+    locationId: 'location',
+  }
+);
+
+makeRoutes('operating-units', 'operatingUnit',
+  { company: true, businessGroup: true, legalEntity: true, location: true },
+  {
+    companyId: 'company',
+    bgId: 'businessGroup',
+    leId: 'legalEntity',
+    locationId: 'location',
+  }
+);
+
+makeRoutes('inv-organizations', 'invOrganization',
+  { company: true, businessGroup: true, legalEntity: true, location: true },
+  {
+    companyId: 'company',
+    bgId: 'businessGroup',
+    leId: 'legalEntity',
+    locationId: 'location',
+  }
+);
+
+makeRoutes('hr-organizations', 'hrOrganization',
+  { company: true, businessGroup: true, legalEntity: true, location: true, parentOrg: true },
+  {
+    companyId: 'company',
+    bgId: 'businessGroup',
+    leId: 'legalEntity',
+    locationId: 'location',
+    parentOrgId: 'parentOrg',
+  }
+);
+
+// Grade
+makeRoutes('grades', 'grade', { company: true, businessGroup: true }, {
+  companyId: 'company',
+  bgId: 'businessGroup',
+});
+
+makeRoutes('grade-steps', 'gradeStep', { grade: true, businessGroup: true }, {
+  bgId: 'businessGroup',
+  gradeId: 'grade',
+});
+
+makeRoutes('grade-ladders', 'gradeLadder', { fromGrade: true, toGrade: true, businessGroup: true }, {
+  bgId: 'businessGroup',
+  fromGradeId: 'fromGrade',
+  toGradeId: 'toGrade',
+});
+
+// Jobs & Positions
+makeRoutes('jobs', 'job', { company: true, businessGroup: true }, {
+  companyId: 'company',
+  bgId: 'businessGroup',
+});
+
+makeRoutes('positions', 'position', { job: true, org: true, grade: true, location: true, businessGroup: true }, {
+  bgId: 'businessGroup',
+  jobId: 'job',
+  orgId: 'org',
+  gradeId: 'grade',
+  locationId: 'location',
+});
+
+// Person
+makeRoutes('persons', 'person', { company: true, businessGroup: true }, {
+  companyId: 'company',
+  bgId: 'businessGroup',
+});
+
+// Assignment
+makeRoutes('assignments', 'assignment',
+  { 
+    person: true, 
+    org: true, 
+    position: true, 
+    job: true, 
+    grade: true,
+    payrollPeriod: true,
+    assignmentStatusType: true,
+    businessGroup: true
+  },
+  {
+    bgId: 'businessGroup',
+    personId: 'person',
+    orgId: 'org',
+    positionId: 'position',
+    jobId: 'job',
+    gradeId: 'grade',
+    payrollId: 'payrollPeriod',
+    assignmentStatusTypeId: 'assignmentStatusType',
+  }
+);
+
+//assignmentStatusType'
+makeRoutes('assignment-status-types', 'assignmentStatusType', { company: true }, {
+  companyId: 'company',
+});
 
 
-makeRoutes('business-groups', 'businessGroup', { company: true, location: true });
-makeRoutes('business-types', 'businessType', { company: true });
-makeRoutes('legal-entities', 'legalEntity', { company: true, businessGroup: true, businessType: true, location: true });
-makeRoutes('operating-units', 'operatingUnit', { company: true, businessGroup: true, legalEntity: true, location: true });
-makeRoutes('inv-organizations', 'invOrganization', { company: true, businessGroup: true, legalEntity: true, location: true });
-makeRoutes('hr-organizations', 'hrOrganization', { company: true, businessGroup: true, legalEntity: true, location: true, parentOrg: true });
+// ✅ SUPERVISOR (FIXED)
+makeRoutes(
+  'supervisors',
+  'supervisor',
+  {
+    assignment: true,
+    supervisorPerson: true,
+  },
+  {
+    assignmentId: 'assignment',
+    personId: 'person',
+    supervisorPersonId: 'supervisorPerson',
+    supervisorAssignmentId: 'supervisorAssignment',
+  }
+);
 
-// Grade Management
-makeRoutes('grades', 'grade', { company: true, businessGroup: true });
-makeRoutes('grade-steps', 'gradeStep', { grade: true });
-makeRoutes('grade-ladders', 'gradeLadder', { fromGrade: true, toGrade: true });
-
-// Job & Position
-makeRoutes('jobs', 'job', { company: true, businessGroup: true });
-makeRoutes('positions', 'position', { job: true, org: true, grade: true, location: true });
-
-// Person Management
-const personCtrl = crudController('person', { company: true, businessGroup: true });
-router.get('/persons', authenticate, personCtrl.getAll);
-router.get('/persons/:id', authenticate, personCtrl.getById);
-router.post('/persons', authenticate, validate, personCtrl.create);
-router.put('/persons/:id', authenticate,validate,personCtrl.update);
-router.delete('/persons/:id', authenticate, personCtrl.remove);
-
-makeRoutes('person-documents', 'personDocument', { person: true });
-makeRoutes('person-competences', 'personCompetence', { person: true, competence: true });
-makeRoutes('person-history', 'personHistory', { person: true, assignment: true });
-
-// Payroll
+// Payroll & Others (same pattern)
 makeRoutes('payroll-periods', 'payrollPeriod', { company: true, businessGroup: true });
-makeRoutes('assignment-status-types', 'assignmentStatusType', { company: true });
-makeRoutes('assignments', 'assignment', { person: true, org: true, position: true, job: true, grade: true });
-makeRoutes('supervisors', 'supervisor', { assignment: true, supervisorPerson: true });
 makeRoutes('element-types', 'elementType', { company: true, businessGroup: true });
 makeRoutes('element-links', 'elementLink', { elementType: true, org: true, grade: true });
 makeRoutes('element-entries', 'elementEntry', { assignment: true, elementType: true });
 makeRoutes('salaries', 'salary', { assignment: true });
-makeRoutes('payroll-runs', 'payrollRun', { payPeriod: true });
-makeRoutes('run-results', 'runResult', { payrollRun: true, assignment: true, elementType: true });
-makeRoutes('pay-balances', 'payBalance', { assignment: true, elementType: true });
-makeRoutes('payments', 'payment', { payrollRun: true, assignment: true, person: true });
-makeRoutes('payslips', 'payslip', { payrollRun: true, assignment: true, person: true });
-makeRoutes('tax-declarations', 'taxDeclaration', { person: true, assignment: true });
 
-// Leave & Absence
-makeRoutes('absence-types', 'absenceType', { company: true, businessGroup: true });
-makeRoutes('absences', 'absence', { person: true, absenceType: true });
+makeRoutes('payroll-runs', 'payrollRun', { payPeriod: true }, {
+  payPeriodId: 'payPeriod',
+});
 
-// Benefits
-makeRoutes('benefit-plans', 'benefitPlan', { company: true, businessGroup: true });
-makeRoutes('benefit-enrollments', 'benefitEnrollment', { person: true, plan: true, assignment: true });
+makeRoutes('run-results', 'runResult', { payrollRun: true, assignment: true, elementType: true }, {
+  payrollRunId: 'payrollRun',
+  assignmentId: 'assignment',
+  elementTypeId: 'elementType',
+});
 
-// Loans
-makeRoutes('loans', 'loan', { person: true, assignment: true });
-makeRoutes('loan-repayments', 'loanRepayment', { loan: true, assignment: true });
+makeRoutes('payslips', 'payslip', { payrollRun: true, assignment: true, person: true }, {
+  payrollRunId: 'payrollRun',
+  assignmentId: 'assignment',
+  personId: 'person',
+});
 
-// Time & Attendance
-makeRoutes('holiday-calendars', 'holidayCalendar', { company: true, location: true });
-makeRoutes('work-schedules', 'workSchedule', { company: true, businessGroup: true });
-makeRoutes('timecards', 'timecard', { assignment: true, workSchedule: true });
+makeRoutes('tax-declarations', 'taxDeclaration', { person: true, assignment: true }, {
+  personId: 'person',
+  assignmentId: 'assignment',
+});
+
+makeRoutes('absence-types', 'absenceType', { company: true, businessGroup: true }, {
+  companyId: 'company',
+  bgId: 'businessGroup',
+});
+
+makeRoutes('absences', 'absence', { person: true, absenceType: true }, {
+  personId: 'person',
+  absenceTypeId: 'absenceType',
+});
+
+makeRoutes('work-schedules', 'workSchedule', { company: true, businessGroup: true }, {
+  companyId: 'company',
+  bgId: 'businessGroup',
+});
+
+makeRoutes('holiday-calendars', 'holidayCalendar', 
+  { company: true, businessGroup: true, location: true }, 
+  {
+    companyId: 'company',
+    bgId: 'businessGroup',
+    locationId: 'location',
+  }
+);
+
+makeRoutes('timecards', 'timecard', { assignment: true, workSchedule: true }, {
+  assignmentId: 'assignment',
+  scheduleId: 'workSchedule',
+});
 
 // Recruitment
-makeRoutes('requisitions', 'requisition', { position: true, org: true });
-makeRoutes('job-postings', 'jobPosting', { requisition: true });
-makeRoutes('applicants', 'applicant', { company: true });
-makeRoutes('applications', 'application', { applicant: true, requisition: true });
-makeRoutes('interviews', 'interview', { application: true });
-makeRoutes('offer-letters', 'offerLetter', { application: true, applicant: true, position: true, grade: true });
-makeRoutes('hired-persons', 'hiredPerson', { applicant: true, application: true, offer: true, position: true, grade: true });
+makeRoutes('requisitions', 'requisition',
+  { company: true, businessGroup: true, position: true, org: true },
+  {
+    companyId: 'company',
+    bgId: 'businessGroup',
+    positionId: 'position',
+    orgId: 'org',
+  }
+);
 
-// Learning & Development
-makeRoutes('competences', 'competence', { company: true, businessGroup: true });
-makeRoutes('training-programs', 'trainingProgram', { company: true, businessGroup: true });
-makeRoutes('training-enrollments', 'trainingEnrollment', { person: true, program: true });
+makeRoutes('job-postings', 'jobPosting',
+  { requisition: true },
+  {
+    requisitionId: 'requisition',
+  }
+);
 
-// Performance
-makeRoutes('appraisals', 'appraisal', { person: true, assignment: true, ratings: true });
-makeRoutes('appraisal-ratings', 'appraisalRating', { appraisal: true });
+makeRoutes('applicants', 'applicant',
+  { company: true },
+  {
+    companyId: 'company',
+  }
+);
+makeRoutes(
+  'applications',
+  'application',
+  {
+    applicant: true,
+    requisition: true,
+  },
+  {
+    companyId: true,
+    applicantId: true,
+    requisitionId: true,
+  }
+);
 
-// Separation
-makeRoutes('separations', 'separation', { person: true, assignment: true });
-makeRoutes('exit-checklists', 'exitChecklist', { separation: true });
-makeRoutes('final-settlements', 'finalSettlement', { separation: true, assignment: true });
+makeRoutes(
+  'interviews',
+  'interview',
+  {
+    application: true, // ✅ only valid relation
+  },
+  {
+    companyId: true,            // direct
+    applicationId: 'application', // relation
+    interviewerPersonId: true,  // direct (IMPORTANT)
+  }
+);
 
-// Security
-makeRoutes('security-roles', 'securityRole', { company: true });
-makeRoutes('security-profiles', 'securityProfile', { company: true });
-makeRoutes('security-profile-accesses', 'securityProfileAccess', { profile: true });
-makeRoutes('security-profile-persons', 'securityProfilePerson', { profile: true, person: true });
-makeRoutes('users', 'user', { role: true });
+makeRoutes(
+  'offer-letters',
+  'offerLetter',
+  {
+    application: true,
+    applicant: true,
+    requisition: true,
+    position: true,
+    grade: true,
+  },
+  {
+    companyId: true,
+    bgId: true,
+    orgId: true,
 
-// Utility
-makeRoutes('cost-centers', 'costCenter', { org: true });
-makeRoutes('audit-logs', 'auditLog', { company: true, user: true });
-makeRoutes('notifications', 'notification', { company: true, user: true });
+    applicationId: true,
+    applicantId: true,
+    requisitionId: true,
+    positionId: true,
+    proposedGradeId: true,
+  }
+);
 
+makeRoutes(
+  'benefit-plans',
+  'benefitPlan',
+  {},
+  {
+    companyId: true,
+    bgId: true,
+  }
+);
+// makeRoutes(
+//   'benefit-enrollments',
+//   'benefitEnrollment',
+//   {
+//     employee: true,
+//     benefitPlan: true,
+//     assignment: true,
+//   },
+//   {
+//     companyId: true,
+//     bgId: true,
+//     employeeId: 'employee',
+//     benefitPlanId: 'benefitPlan',
+//     assignmentId: 'assignment',
+//   }
+makeRoutes(
+  'benefit-enrollments',
+  'benefitEnrollment',
+  {
+    person: true,       // ✅ correct relation
+    plan: true,         // ✅ correct relation
+    assignment: true,
+  },
+  {
+    companyId: true,
+    bgId: true,
+
+    personId: 'person',        // ✅ FIXED
+    planId: 'plan',            // ✅ FIXED
+    assignmentId: 'assignment' // ✅ correct
+  }
+);
+  // ===================== LOANS =====================
+makeRoutes(
+  'loans',
+  'loan',
+  {
+    person: true,       // Employee
+    assignment: true,
+  },
+  {
+    companyId: true,
+    bgId: true,
+
+    personId: 'person',        // ✅ Employee relation
+    assignmentId: 'assignment' // ✅ Assignment relation
+  }
+);
+
+// ===================== TRAINING PROGRAMS =====================
+// ===================== TRAINING PROGRAMS =====================
+// Training
+makeRoutes('training-programs', 'trainingProgram', 
+  { company: true, businessGroup: true }, 
+  {
+    companyId: 'company',
+    bgId: 'businessGroup',
+  }
+);
+
+makeRoutes(
+  'training-enrollments',
+  'trainingEnrollment',
+  {
+    person: true,   // ✅ correct
+    program: true,  // ✅ VERY IMPORTANT FIX
+  },
+  {
+    companyId: true,
+    bgId: true,
+
+    personId: 'person',   // ✅ correct
+    programId: 'program', // ✅ FIXED (was wrong before)
+  }
+);
+
+
+makeRoutes('competences', 'competence', 
+  { company: true, businessGroup: true }, 
+  {
+    companyId: 'company',
+    bgId: 'businessGroup',
+  }
+);
+
+makeRoutes('appraisals', 'appraisal',
+  { person: true, assignment: true },
+  {
+    personId: 'person',
+    assignmentId: 'assignment',
+  }
+);
+
+makeRoutes('separations', 'separation',
+  { person: true, assignment: true },
+  {
+    personId: 'person',
+    assignmentId: 'assignment',
+  }
+);
+
+makeRoutes('exit-checklists', 'exitChecklist',
+  { separation: true },        
+  {
+    separationId: 'separation', 
+  }
+);
+
+makeRoutes(
+  'final-settlements',
+  'finalSettlement',
+  {
+    separation: true,
+    assignment: true,
+  },
+  {
+    companyId: true,
+    bgId: true,
+
+    separationId: 'separation', // ✅ relation
+    assignmentId: 'assignment', // ✅ relation
+
+    personId: true,             // ✅ KEEP DIRECT (IMPORTANT FIX)
+  }
+);
+makeRoutes(
+  'security-roles',
+  'securityRole',
+  {
+    company: true,
+  },
+  {
+    companyId: 'company',
+  }
+);
+makeRoutes(
+  'users',
+  'user',
+  {
+    role: true,
+    // person: true,
+  },
+  {
+    companyId: true,
+    roleId: 'role',
+    personId: 'person',
+  }
+);
+makeRoutes(
+  'audit-logs',
+  'auditLog',
+  {
+    company: true,
+    user: true,
+  },
+  {
+    companyId: 'company',
+    userId: 'user',
+  }
+);
 module.exports = router;

@@ -1319,7 +1319,7 @@ model JobPosting {
   postingDate           DateTime @map("posting_date")
   closingDate           DateTime @map("closing_date")
   postingStatus         String   @default("Active") @map("posting_status")
-   isActive        Boolean  @default(true) @map("is_active") 
+  isActive        Boolean  @default(true) @map("is_active") 
   effectiveFrom         DateTime @default(now()) @map("effective_from")
   effectiveTo           DateTime @default(dbgenerated("'2099-12-31'::date")) @map("effective_to")
   createdBy             String   @default("SYSTEM") @map("created_by")
@@ -1334,6 +1334,7 @@ model Applicant {
   id                 String   @id @default(cuid()) @map("applicant_id")
   companyId          String   @map("company_id")
   firstName          String   @map("first_name")
+  middleName            String?   @map("middle_name")
   lastName           String   @map("last_name")
   email              String
   phone              String?

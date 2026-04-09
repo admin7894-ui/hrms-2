@@ -1008,6 +1008,7 @@ exports.Prisma.ApplicantScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
   firstName: 'firstName',
+  middleName: 'middleName',
   lastName: 'lastName',
   email: 'email',
   phone: 'phone',

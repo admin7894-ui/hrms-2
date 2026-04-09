@@ -17,7 +17,7 @@ const Toggle = ({ enabled, onChange }) => (
 );
 
 const DataTable = ({ columns, data, loading, onEdit, onDelete, onToggle, onView }) => {
-  console.log("this is the person data ",data);
+  // console.log("this is the person data ",data);
   
   if (loading) {
     return (

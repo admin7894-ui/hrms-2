@@ -1334,6 +1334,7 @@ model Applicant {
   id                 String   @id @default(cuid()) @map("applicant_id")
   companyId          String   @map("company_id")
   firstName          String   @map("first_name")
+  middleName         String?  @map("middle_name")
   lastName           String   @map("last_name")
   email              String
   phone              String?

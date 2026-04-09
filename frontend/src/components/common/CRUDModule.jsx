@@ -32,6 +32,33 @@ const FIELD_RULES = {
   },
 
   // Location
+
+  countryName:{
+    min: 2,
+    max: 30,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+  
+  stateName:{
+    min: 2,
+    max: 30,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+  cityName:{
+    min: 2,
+    max: 30,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+  taxRegistrationNo: { min: 5, max: 30,  regex: /^[a-zA-Z0-9-]+$/, label: 'Tax Registration No' },
+  businessTypeName:{
+    min: 2,
+    max: 30,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
   locationName: {
     min: 3,
     max: 100,
@@ -44,7 +71,19 @@ const FIELD_RULES = {
     regex: ADDRESS_REGEX,
     regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
   },
+  emergencyName:{
+    min: 2,
+    max: 30,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
 
+  statusName:{
+    min: 2,
+    max: 30,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
   // Business Group
   bgName: {
     min: 2,
@@ -137,12 +176,15 @@ const FIELD_RULES = {
   },
 
   // // Grade / Job / Position
-  // gradeCode: {
-  //   min: 1,
-  //   max: 20,
-  //   regex: CODE_REGEX,
-  //   regexMsg: "only letters, numbers, hyphens and underscores allowed",
-  // },
+
+  gradeName:    { min: 2, max: 100, regex: ALPHANUMERIC_NAME_REGEX, regexMsg: 'must contain at least one letter, only letters, numbers and spaces allowed' },
+
+  gradeCode: {
+    min: 1,
+    max: 20,
+    regex: CODE_REGEX,
+    regexMsg: "only letters, numbers, hyphens and underscores allowed",
+  },
   // gradeName: {
   //   min: 2,
   //   max: 100,
@@ -168,7 +210,6 @@ const FIELD_RULES = {
   //   regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
   // },
   // Grade
-gradeName:    { min: 2, max: 100, regex: ALPHANUMERIC_NAME_REGEX, regexMsg: 'must contain at least one letter, only letters, numbers and spaces allowed' },
 
 // Job
 jobName:      { min: 2, max: 100, regex: ALPHANUMERIC_NAME_REGEX, regexMsg: 'must contain at least one letter, only letters, numbers and spaces allowed' },
@@ -181,15 +222,21 @@ positionName: { min: 2, max: 100, regex: ALPHANUMERIC_NAME_REGEX, regexMsg: 'mus
   payrollName: {
     min: 2,
     max: 100,
-    regex: NAME_REGEX,
+    regex: /^[a-zA-Z\s]+$/,
     regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
-  },
+},
   payrollCode: {
     min: 1,
     max: 20,
     regex: CODE_REGEX,
     regexMsg: "only letters, numbers, hyphens and underscores allowed",
   },
+  periodName: {
+    min: 2,
+    max: 100,
+    regex: /^[a-zA-Z\s]+$/,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+},
   elementCode: {
     min: 1,
     max: 20,
@@ -199,7 +246,7 @@ positionName: { min: 2, max: 100, regex: ALPHANUMERIC_NAME_REGEX, regexMsg: 'mus
   elementName: {
     min: 2,
     max: 100,
-    regex: NAME_REGEX,
+    regex: /^[a-zA-Z\s]+$/,
     regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
   },
 
@@ -227,7 +274,7 @@ positionName: { min: 2, max: 100, regex: ALPHANUMERIC_NAME_REGEX, regexMsg: 'mus
   absenceName: {
     min: 2,
     max: 100,
-    regex: NAME_REGEX,
+    regex: /^[a-zA-Z\s]+$/,
     regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
   },
 
@@ -241,7 +288,13 @@ positionName: { min: 2, max: 100, regex: ALPHANUMERIC_NAME_REGEX, regexMsg: 'mus
   programName: {
     min: 2,
     max: 100,
-    regex: NAME_REGEX,
+    regex: /^[a-zA-Z\s]+$/,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+   provider: {
+    min: 2,
+    max: 100,
+    regex: /^[a-zA-Z\s]+$/,
     regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
   },
 
@@ -253,6 +306,34 @@ positionName: { min: 2, max: 100, regex: ALPHANUMERIC_NAME_REGEX, regexMsg: 'mus
     regexMsg: "only letters, numbers, hyphens and underscores allowed",
   },
   competenceName: {
+    min: 2,
+    max: 100,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+   // Appraisal
+  recommendation: {
+    min: 2,
+    max: 100,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+//Exit Checklist
+checklistItem: {
+    min: 2,
+    max: 100,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+
+  department: {
+    min: 2,
+    max: 100,
+    regex: NAME_REGEX,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+
+  assignedTo: {
     min: 2,
     max: 100,
     regex: NAME_REGEX,
@@ -277,9 +358,50 @@ positionName: { min: 2, max: 100, regex: ALPHANUMERIC_NAME_REGEX, regexMsg: 'mus
   scheduleName: {
     min: 2,
     max: 100,
-    regex: NAME_REGEX,
+    regex: /^[a-zA-Z\s]+$/,
     regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
   },
+
+   holidayName: {
+    min: 2,
+    max: 100,
+    regex: /^[a-zA-Z\s]+$/,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+  postingTitle: {
+    min: 2,
+    max: 100,
+    regex: /^[a-zA-Z\s]+$/,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+  phone:{
+    min: 10,
+    max: 12,
+    regex: /^[0-9]+$/,
+    regexMsg: "only numbers allowed",
+  },
+  rating:{
+    min: 1,
+    max: 5,
+    regex: /^[0-5]+$/,
+    regexMsg: "only numbers between 0 and 5 allowed",
+  },
+  planName: {
+    min: 2,
+    max: 100,
+    regex: /^[a-zA-Z\s]+$/,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+
+  //Audit log
+
+  tableName : {
+    min: 2,
+    max: 100,
+    regex: /^[a-zA-Z\s]+$/,
+    regexMsg: "only letters, numbers, spaces and basic punctuation allowed",
+  },
+
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -382,7 +504,8 @@ const CRUDModule = ({
           setOptionsData((prev) => ({ ...prev, [field.name]: [] }));
           return;
         }
-        params[field.dependsOn] = parentValue;
+        const paramKey = field.dependsOnParam || field.dependsOn;
+        params[paramKey] = parentValue;
       }
       const service = makeService(field.optionsUrl);
       const res = await service.getAll(params);
@@ -523,6 +646,7 @@ const CRUDModule = ({
         err.message ||
         "An unexpected error occurred";
       setError(msg);
+      console.log(msg);
     }
   };
 
